@@ -12,6 +12,7 @@ import Select from '../../components/ui/Select';
 import Modal from '../../components/ui/Modal';
 import Label from '../../components/ui/Label';
 import apiClient from '../../api/apiClient';
+import useToast from '../../hooks/useToast';
 
 const filterOptions = [
   { label: 'All plans', value: 'all' },
@@ -40,6 +41,7 @@ export default function SuperPlansPage() {
   const [formState, setFormState] = useState(initialFormState);
   const [activePlan, setActivePlan] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showToast } = useToast();
 
   const PLAN_FORM_ID = 'plan-form';
 
@@ -116,7 +118,9 @@ export default function SuperPlansPage() {
     };
 
     if (!payload.name || !payload.maxAiChecksPerMonth || payload.maxAiChecksPerMonth <= 0) {
-      setNotification({ type: 'error', message: 'Please provide a valid name and limit.' });
+      const message = 'Please provide a valid name and limit.';
+      setNotification({ type: 'error', message });
+      showToast({ title: 'Invalid plan details', description: message, variant: 'error' });
       setIsSubmitting(false);
       return;
     }
@@ -125,17 +129,21 @@ export default function SuperPlansPage() {
       if (modalMode === 'create') {
         await apiClient.post('/super/plans', payload);
         setNotification({ type: 'success', message: 'Plan created successfully.' });
+        showToast({ title: 'Plan created', variant: 'success' });
       } else if (activePlan) {
         await apiClient.put(`/super/plans/${activePlan._id}`, payload);
         setNotification({ type: 'success', message: 'Plan updated.' });
+        showToast({ title: 'Plan updated', variant: 'success' });
       }
       setIsModalOpen(false);
       fetchPlans();
     } catch (err) {
+      const message = err?.response?.data?.message || 'Unable to save plan.';
       setNotification({
         type: 'error',
-        message: err?.response?.data?.message || 'Unable to save plan.',
+        message,
       });
+      showToast({ title: 'Plan save failed', description: message, variant: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -147,16 +155,20 @@ export default function SuperPlansPage() {
       if (plan.isActive) {
         await apiClient.delete(`/super/plans/${plan._id}`);
         setNotification({ type: 'success', message: 'Plan deactivated.' });
+        showToast({ title: 'Plan deactivated', variant: 'success' });
       } else {
         await apiClient.put(`/super/plans/${plan._id}`, { isActive: true });
         setNotification({ type: 'success', message: 'Plan reactivated.' });
+        showToast({ title: 'Plan reactivated', variant: 'success' });
       }
       fetchPlans();
     } catch (err) {
+      const message = err?.response?.data?.message || 'Unable to update plan status.';
       setNotification({
         type: 'error',
-        message: err?.response?.data?.message || 'Unable to update plan status.',
+        message,
       });
+      showToast({ title: 'Plan update failed', description: message, variant: 'error' });
     }
   };
 

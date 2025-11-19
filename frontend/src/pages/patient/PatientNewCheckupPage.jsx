@@ -9,6 +9,7 @@ import Textarea from '../../components/ui/Textarea';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import RiskBadge from '../../components/patient/RiskBadge';
 import apiClient from '../../api/apiClient';
+import useToast from '../../hooks/useToast';
 
 export default function PatientNewCheckupPage() {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export default function PatientNewCheckupPage() {
   const [assistantIntro, setAssistantIntro] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const { showToast } = useToast();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -35,14 +37,18 @@ export default function PatientNewCheckupPage() {
       });
       setAiResult(response.data?.report);
       setAssistantIntro(response.data?.assistantIntro || '');
+      showToast({ title: 'AI checkup complete', variant: 'success' });
     } catch (err) {
       if (err?.response?.status === 403) {
-        setError(
+        const message =
           err.response.data?.message ||
-            'Your hospital has reached its AI usage limit for this billing period. Please try again later.',
-        );
+          'Your hospital has reached its AI usage limit for this billing period. Please try again later.';
+        setError(message);
+        showToast({ title: 'AI usage limit reached', description: message, variant: 'warning' });
       } else {
-        setError(err?.response?.data?.message || 'Unable to run the AI assessment right now.');
+        const message = err?.response?.data?.message || 'Unable to run the AI assessment right now.';
+        setError(message);
+        showToast({ title: 'AI checkup failed', description: message, variant: 'error' });
       }
     } finally {
       setIsSubmitting(false);

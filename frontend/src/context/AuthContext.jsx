@@ -1,6 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/apiClient';
+import useToast from '../hooks/useToast';
+import { subscribeAuthLogout } from '../utils/authEvents';
 
 export const AuthContext = createContext({
   user: null,
@@ -19,6 +22,8 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const navigate = useNavigate();
+  const { showToast } = useToast();
 
   useEffect(() => {
     const storedToken = localStorage.getItem(STORAGE_TOKEN_KEY);
@@ -34,35 +39,60 @@ export function AuthProvider({ children }) {
     setIsInitialized(true);
   }, []);
 
-  const login = useCallback(async ({ email, password }) => {
-    setIsLoading(true);
-    try {
-      const { data } = await apiClient.post('/auth/login', { email, password });
-      const nextToken = data?.token || data?.accessToken;
-      const nextUser = data?.user || null;
+  const login = useCallback(
+    async ({ email, password }) => {
+      setIsLoading(true);
+      try {
+        const { data } = await apiClient.post(
+          '/auth/login',
+          { email, password },
+          { __isAuthRequest: true },
+        );
+        const nextToken = data?.token || data?.accessToken;
+        const nextUser = data?.user || null;
 
-      if (!nextToken || !nextUser) {
-        throw new Error('Invalid login response');
+        if (!nextToken || !nextUser) {
+          throw new Error('Invalid login response');
+        }
+
+        localStorage.setItem(STORAGE_TOKEN_KEY, nextToken);
+        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(nextUser));
+
+        setToken(nextToken);
+        setUser(nextUser);
+        showToast({
+          title: `Welcome back${nextUser.name ? `, ${nextUser.name}` : ''}!`,
+          variant: 'success',
+        });
+
+        return { user: nextUser, token: nextToken };
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [showToast],
+  );
 
-      localStorage.setItem(STORAGE_TOKEN_KEY, nextToken);
-      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(nextUser));
+  const logout = useCallback(
+    (message) => {
+      localStorage.removeItem(STORAGE_TOKEN_KEY);
+      localStorage.removeItem(STORAGE_USER_KEY);
+      setToken(null);
+      setUser(null);
+      if (message) {
+        showToast({ title: message, variant: 'warning' });
+      } else {
+        showToast({ title: 'Signed out', variant: 'info' });
+      }
+      navigate('/auth/login', { replace: true });
+    },
+    [navigate, showToast],
+  );
 
-      setToken(nextToken);
-      setUser(nextUser);
-
-      return { user: nextUser, token: nextToken };
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_TOKEN_KEY);
-    localStorage.removeItem(STORAGE_USER_KEY);
-    setToken(null);
-    setUser(null);
-  }, []);
+  useEffect(() => {
+    const unsubscribe = subscribeAuthLogout(({ message }) => logout(message));
+    return unsubscribe;
+  }, [logout]);
 
   const value = useMemo(
     () => ({

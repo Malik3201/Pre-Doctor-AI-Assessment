@@ -13,6 +13,7 @@ import Spinner from '../../components/ui/Spinner';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import Badge from '../../components/ui/Badge';
 import apiClient from '../../api/apiClient';
+import useToast from '../../hooks/useToast';
 
 const statusOptions = [
   { label: 'All statuses', value: 'all' },
@@ -43,6 +44,7 @@ export default function HospitalDoctorsPage() {
   const [formState, setFormState] = useState(initialFormState);
   const [activeDoctor, setActiveDoctor] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showToast } = useToast();
   const DOCTOR_FORM_ID = 'doctor-form';
 
   const fetchDoctors = useCallback(
@@ -124,18 +126,22 @@ export default function HospitalDoctorsPage() {
     try {
       if (modalMode === 'create') {
         await apiClient.post('/hospital/doctors', payload);
-        setNotification({ type: 'success', message: 'Doctor added successfully.' });
+      setNotification({ type: 'success', message: 'Doctor added successfully.' });
+      showToast({ title: 'Doctor added', variant: 'success' });
       } else if (activeDoctor) {
         await apiClient.put(`/hospital/doctors/${activeDoctor._id}`, payload);
         setNotification({ type: 'success', message: 'Doctor updated.' });
+        showToast({ title: 'Doctor updated', variant: 'success' });
       }
       setIsModalOpen(false);
       fetchDoctors();
     } catch (err) {
+      const message = err?.response?.data?.message || 'Unable to save doctor.';
       setNotification({
         type: 'error',
-        message: err?.response?.data?.message || 'Unable to save doctor.',
+        message,
       });
+      showToast({ title: 'Doctor save failed', description: message, variant: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -147,12 +153,15 @@ export default function HospitalDoctorsPage() {
     try {
       await apiClient.delete(`/hospital/doctors/${doctor._id}`);
       setNotification({ type: 'success', message: 'Doctor removed.' });
+      showToast({ title: 'Doctor removed', variant: 'success' });
       fetchDoctors();
     } catch (err) {
+      const message = err?.response?.data?.message || 'Unable to remove doctor.';
       setNotification({
         type: 'error',
-        message: err?.response?.data?.message || 'Unable to remove doctor.',
+        message,
       });
+      showToast({ title: 'Delete failed', description: message, variant: 'error' });
     }
   };
 

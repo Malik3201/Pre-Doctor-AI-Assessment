@@ -40,7 +40,7 @@ export default function PatientRegisterPage() {
     setIsSubmitting(true);
     try {
       const payload = { name: form.name.trim(), email: form.email.trim(), password: form.password };
-      await apiClient.post('/auth/patient/register', payload);
+      await apiClient.post('/auth/patient/register', payload, { __isAuthRequest: true });
       await login({ email: payload.email, password: payload.password });
       navigate('/app/dashboard', { replace: true });
     } catch (err) {

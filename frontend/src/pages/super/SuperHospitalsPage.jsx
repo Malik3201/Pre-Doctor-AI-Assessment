@@ -20,6 +20,7 @@ import Select from '../../components/ui/Select';
 import Modal from '../../components/ui/Modal';
 import Label from '../../components/ui/Label';
 import apiClient from '../../api/apiClient';
+import useToast from '../../hooks/useToast';
 
 const statusOptions = [
   { label: 'All statuses', value: 'all' },
@@ -73,6 +74,7 @@ export default function SuperHospitalsPage() {
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [resetPassword, setResetPassword] = useState('');
   const [isResetSubmitting, setIsResetSubmitting] = useState(false);
+  const { showToast } = useToast();
 
   const fetchHospitals = useCallback(async (statusParam) => {
     const effectiveStatus = statusParam ?? statusFilter;
@@ -152,13 +154,24 @@ export default function SuperHospitalsPage() {
 
       await apiClient.post('/super/hospitals', payload);
       setNotification({ type: 'success', message: 'Hospital created successfully.' });
+      showToast({
+        title: 'Hospital created',
+        description: `${payload.name} is ready.`,
+        variant: 'success',
+      });
       setIsCreateOpen(false);
       setCreateForm(initialCreateForm);
       fetchHospitals();
     } catch (err) {
+      const message = err?.response?.data?.message || 'Failed to create hospital.';
       setNotification({
         type: 'error',
-        message: err?.response?.data?.message || 'Failed to create hospital.',
+        message,
+      });
+      showToast({
+        title: 'Unable to create hospital',
+        description: message,
+        variant: 'error',
       });
     } finally {
       setIsCreateSubmitting(false);
@@ -169,12 +182,15 @@ export default function SuperHospitalsPage() {
     try {
       await apiClient.patch(`/super/hospitals/${hospitalId}/status`, { status: nextStatus });
       setNotification({ type: 'success', message: 'Status updated.' });
+      showToast({ title: 'Status updated', variant: 'success' });
       fetchHospitals();
     } catch (err) {
+      const message = err?.response?.data?.message || 'Unable to update status.';
       setNotification({
         type: 'error',
-        message: err?.response?.data?.message || 'Unable to update status.',
+        message,
       });
+      showToast({ title: 'Status update failed', description: message, variant: 'error' });
     }
   };
 
@@ -200,14 +216,17 @@ export default function SuperHospitalsPage() {
       };
       await apiClient.patch(`/super/hospitals/${selectedHospital._id}/plan`, payload);
       setNotification({ type: 'success', message: 'Plan updated.' });
+      showToast({ title: 'Plan assigned', variant: 'success' });
       setIsPlanModalOpen(false);
       setSelectedHospital(null);
       fetchHospitals();
     } catch (err) {
+      const message = err?.response?.data?.message || 'Unable to assign plan.';
       setNotification({
         type: 'error',
-        message: err?.response?.data?.message || 'Unable to assign plan.',
+        message,
       });
+      showToast({ title: 'Plan assignment failed', description: message, variant: 'error' });
     } finally {
       setIsPlanSubmitting(false);
     }
@@ -229,13 +248,16 @@ export default function SuperHospitalsPage() {
         newPassword: resetPassword,
       });
       setNotification({ type: 'success', message: 'Admin password reset successfully.' });
+      showToast({ title: 'Admin password reset', variant: 'success' });
       setIsResetModalOpen(false);
       setSelectedHospital(null);
     } catch (err) {
+      const message = err?.response?.data?.message || 'Unable to reset password.';
       setNotification({
         type: 'error',
-        message: err?.response?.data?.message || 'Unable to reset password.',
+        message,
       });
+      showToast({ title: 'Reset failed', description: message, variant: 'error' });
     } finally {
       setIsResetSubmitting(false);
     }

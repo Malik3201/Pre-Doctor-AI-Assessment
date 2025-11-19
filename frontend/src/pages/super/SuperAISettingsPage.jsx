@@ -8,6 +8,7 @@ import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import apiClient from '../../api/apiClient';
+import useToast from '../../hooks/useToast';
 
 const providerOptions = [
   {
@@ -29,6 +30,7 @@ export default function SuperAISettingsPage() {
   const [notification, setNotification] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const SETTINGS_FORM_ID = 'ai-settings-form';
+  const { showToast } = useToast();
 
   const fetchSettings = async () => {
     setIsLoading(true);
@@ -60,11 +62,14 @@ export default function SuperAISettingsPage() {
       const response = await apiClient.put('/super/settings/ai', form);
       setForm(response.data);
       setNotification({ type: 'success', message: 'AI settings updated successfully.' });
+      showToast({ title: 'AI settings saved', variant: 'success' });
     } catch (err) {
+      const message = err?.response?.data?.message || 'Unable to update settings.';
       setNotification({
         type: 'error',
-        message: err?.response?.data?.message || 'Unable to update settings.',
+        message,
       });
+      showToast({ title: 'Failed to save AI settings', description: message, variant: 'error' });
     } finally {
       setIsSaving(false);
     }

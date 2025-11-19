@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { triggerAuthLogout } from '../utils/authEvents';
 
 const apiClient = axios.create({
   baseURL: '/api',
@@ -12,6 +13,17 @@ apiClient.interceptors.request.use((config) => {
   }
   return config;
 });
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    if (status === 401 && !error.config?.__isAuthRequest) {
+      triggerAuthLogout({ message: 'Your session expired. Please log in again.' });
+    }
+    return Promise.reject(error);
+  },
+);
 
 export default apiClient;
 

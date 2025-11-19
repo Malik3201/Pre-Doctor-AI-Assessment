@@ -12,6 +12,7 @@ import Spinner from '../../components/ui/Spinner';
 import Badge from '../../components/ui/Badge';
 import Select from '../../components/ui/Select';
 import apiClient from '../../api/apiClient';
+import useToast from '../../hooks/useToast';
 
 const initialFormState = {
   name: '',
@@ -42,6 +43,7 @@ export default function HospitalSettingsPage() {
   const [notification, setNotification] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const SETTINGS_FORM_ID = 'hospital-settings-form';
+  const { showToast } = useToast();
 
   const shapeFormFromResponse = (hospital) => ({
     name: hospital?.name || '',
@@ -119,11 +121,14 @@ export default function HospitalSettingsPage() {
       const response = await apiClient.put('/hospital/settings', payload);
       setForm(shapeFormFromResponse(response.data?.hospital));
       setNotification({ type: 'success', message: 'Settings updated successfully.' });
+      showToast({ title: 'Settings saved', variant: 'success' });
     } catch (err) {
+      const message = err?.response?.data?.message || 'Unable to save settings.';
       setNotification({
         type: 'error',
-        message: err?.response?.data?.message || 'Unable to save settings.',
+        message,
       });
+      showToast({ title: 'Save failed', description: message, variant: 'error' });
     } finally {
       setIsSaving(false);
     }

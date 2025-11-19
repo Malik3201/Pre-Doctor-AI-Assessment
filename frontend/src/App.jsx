@@ -18,11 +18,12 @@ import PatientReportDetailPage from './pages/patient/PatientReportDetailPage';
 import PatientNewCheckupPage from './pages/patient/PatientNewCheckupPage';
 import NotFoundPage from './pages/misc/NotFoundPage';
 import UnauthorizedPage from './pages/misc/UnauthorizedPage';
+import LandingPage from './pages/misc/LandingPage';
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/auth/login" replace />} />
+      <Route path="/" element={<LandingPage />} />
 
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/patient/register" element={<PatientRegisterPage />} />

@@ -9,6 +9,7 @@ import ErrorBanner from '../../components/shared/ErrorBanner';
 import RiskBadge from '../../components/patient/RiskBadge';
 import apiClient from '../../api/apiClient';
 import EmptyState from '../../components/shared/EmptyState';
+import useToast from '../../hooks/useToast';
 
 function Section({ title, children }) {
   return (
@@ -27,6 +28,7 @@ export default function PatientReportDetailPage() {
   const [report, setReport] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const { showToast } = useToast();
 
   const fetchReport = useCallback(async () => {
     setIsLoading(true);
@@ -45,8 +47,24 @@ export default function PatientReportDetailPage() {
     fetchReport();
   }, [fetchReport]);
 
-  const handleDownload = () => {
-    window.open(`/api/patient/checkups/${id}/pdf`, '_blank');
+  const handleDownload = async () => {
+    try {
+      const response = await apiClient.get(`/patient/checkups/${id}/pdf`, { responseType: 'blob' });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `pre-assessment-${id}.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      showToast({ title: 'Report downloaded', variant: 'success' });
+    } catch (err) {
+      showToast({
+        title: 'Download failed',
+        description: err?.response?.data?.message || 'Unable to download this report.',
+        variant: 'error',
+      });
+    }
   };
 
   return (

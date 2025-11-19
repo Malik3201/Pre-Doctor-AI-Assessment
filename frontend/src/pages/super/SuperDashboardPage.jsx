@@ -3,11 +3,11 @@ import { Activity, Building2, Cpu, RefreshCcw, Users2 } from 'lucide-react';
 import SuperAdminLayout from '../../layouts/SuperAdminLayout';
 import StatCard from '../../components/ui/StatCard';
 import Card from '../../components/ui/Card';
-import Spinner from '../../components/ui/Spinner';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import apiClient from '../../api/apiClient';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
+import Skeleton from '../../components/ui/Skeleton';
 
 const numberFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
 
@@ -70,9 +70,26 @@ export default function SuperDashboardPage() {
       )}
 
       {isLoading ? (
-        <div className="flex min-h-[300px] items-center justify-center">
-          <Spinner className="h-8 w-8 border-slate-300" />
-        </div>
+        <>
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Card key={index}>
+                <Skeleton className="mb-3 h-4 w-24" />
+                <Skeleton className="h-8 w-32" />
+              </Card>
+            ))}
+          </div>
+          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, index) => (
+              <Card key={index} className="space-y-3">
+                <Skeleton className="h-5 w-2/3" />
+                {Array.from({ length: 3 }).map((__, innerIndex) => (
+                  <Skeleton key={innerIndex} className="h-10 w-full" />
+                ))}
+              </Card>
+            ))}
+          </div>
+        </>
       ) : (
         <>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">

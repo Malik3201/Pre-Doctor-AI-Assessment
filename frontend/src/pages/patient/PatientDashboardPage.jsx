@@ -5,12 +5,12 @@ import PatientLayout from '../../layouts/PatientLayout';
 import Card from '../../components/ui/Card';
 import StatCard from '../../components/ui/StatCard';
 import Button from '../../components/ui/Button';
-import Spinner from '../../components/ui/Spinner';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import EmptyState from '../../components/shared/EmptyState';
 import RiskBadge from '../../components/patient/RiskBadge';
 import ReportSummaryCard from '../../components/patient/ReportSummaryCard';
 import apiClient from '../../api/apiClient';
+import Skeleton from '../../components/ui/Skeleton';
 
 export default function PatientDashboardPage() {
   const navigate = useNavigate();
@@ -78,9 +78,25 @@ export default function PatientDashboardPage() {
       )}
 
       {isLoading ? (
-        <div className="flex min-h-[280px] items-center justify-center">
-          <Spinner className="h-8 w-8 border-slate-300" />
-        </div>
+        <>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <Card key={index}>
+                <Skeleton className="mb-2 h-4 w-1/3" />
+                <Skeleton className="h-8 w-1/2" />
+              </Card>
+            ))}
+          </div>
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, index) => (
+              <Card key={index} className="space-y-4">
+                <Skeleton className="h-5 w-1/2" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-24 w-full" />
+              </Card>
+            ))}
+          </div>
+        </>
       ) : (
         <>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

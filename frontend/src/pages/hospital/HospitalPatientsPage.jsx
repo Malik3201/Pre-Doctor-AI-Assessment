@@ -10,6 +10,7 @@ import Spinner from '../../components/ui/Spinner';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import Badge from '../../components/ui/Badge';
 import apiClient from '../../api/apiClient';
+import useToast from '../../hooks/useToast';
 
 const statusOptions = [
   { label: 'All', value: 'all' },
@@ -25,6 +26,7 @@ export default function HospitalPatientsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [notification, setNotification] = useState(null);
+  const { showToast } = useToast();
 
   const fetchPatients = useCallback(
     async (statusParam, searchParam) => {
@@ -67,16 +69,23 @@ export default function HospitalPatientsPage() {
     setNotification(null);
     try {
       await apiClient.patch(`/hospital/patients/${patient._id}/ban`, { status: nextStatus });
+      const msg = `Patient ${nextStatus === 'banned' ? 'banned' : 'reinstated'}.`;
       setNotification({
         type: 'success',
-        message: `Patient ${nextStatus === 'banned' ? 'banned' : 'reinstated'}.`,
+        message: msg,
+      });
+      showToast({
+        title: msg,
+        variant: nextStatus === 'banned' ? 'warning' : 'success',
       });
       fetchPatients(statusFilter, appliedSearch);
     } catch (err) {
+      const message = err?.response?.data?.message || 'Unable to update patient status.';
       setNotification({
         type: 'error',
-        message: err?.response?.data?.message || 'Unable to update patient status.',
+        message,
       });
+      showToast({ title: 'Update failed', description: message, variant: 'error' });
     }
   };
 
