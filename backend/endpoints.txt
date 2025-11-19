@@ -1,0 +1,45 @@
+Base URL: http://localhost:5000
+
+Public / Bootstrap
+POST   /api/auth/super-admin/bootstrap          - Create first SUPER_ADMIN (only when none exists)
+POST   /api/auth/login                          - Login (SUPER_ADMIN / HOSPITAL_ADMIN / PATIENT)
+POST   /api/auth/patient/register               - Patient self-registration (requires hospital subdomain)
+GET    /api/health                              - Basic health check
+
+Super Admin (requires SUPER_ADMIN token)
+POST   /api/super/hospitals                     - Create hospital + admin
+GET    /api/super/hospitals                     - List hospitals (optional ?status=active|suspended|banned)
+GET    /api/super/hospitals/:id                 - Get hospital details
+PATCH  /api/super/hospitals/:id/status          - Update hospital status
+PATCH  /api/super/hospitals/:id/reset-admin-password - Reset hospital admin password
+PATCH  /api/super/hospitals/:id/plan            - Assign subscription plan / override AI limits
+GET    /api/super/analytics/overview            - Global analytics
+GET    /api/super/settings/ai                   - Get global AI provider/model config
+PUT    /api/super/settings/ai                   - Update global AI provider/model config
+POST   /api/super/plans                         - Create subscription plan
+GET    /api/super/plans                         - List plans (optional ?isActive=true|false)
+PUT    /api/super/plans/:id                     - Update subscription plan
+DELETE /api/super/plans/:id                     - Deactivate subscription plan
+
+Hospital Admin (requires HOSPITAL_ADMIN token + hospital subdomain)
+GET    /api/hospital/settings                   - View hospital branding/settings
+PUT    /api/hospital/settings                   - Update branding + AI customization
+POST   /api/hospital/doctors                    - Create doctor record
+GET    /api/hospital/doctors                    - List doctors (optional ?status=active|inactive, pagination via ?page=&limit=)
+GET    /api/hospital/doctors/:id                - Get doctor details
+PUT    /api/hospital/doctors/:id                - Update doctor
+DELETE /api/hospital/doctors/:id                - Remove doctor
+GET    /api/hospital/patients                   - List patients (optional ?status=active|banned&search=)
+PATCH  /api/hospital/patients/:id/ban           - Ban/unban patient (body { status: 'active'|'banned' })
+GET    /api/hospital/analytics/overview         - Hospital-level analytics + plan usage
+
+Patient (requires PATIENT token + hospital subdomain)
+GET    /api/patient/dashboard                   - Dashboard overview (latest report summary)
+POST   /api/patient/checkups                    - Manually create health report (structured data)
+GET    /api/patient/checkups                    - List own reports (optional ?riskLevel=)
+GET    /api/patient/checkups/:id                - Get full report detail
+GET    /api/patient/checkups/:id/pdf            - Download branded PDF report
+
+AI Health Check (requires PATIENT token + hospital subdomain)
+POST   /api/ai/health-check                     - Trigger AI assessment & auto-create report (body: { symptomInput, qaFlow[] })
+
