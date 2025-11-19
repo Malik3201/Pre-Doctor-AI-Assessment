@@ -200,7 +200,7 @@ export const getGlobalStats = async (req, res, next) => {
 const buildAiSettingsResponse = (settings) => {
   const envProvider = process.env.AI_PROVIDER || 'openai';
   const envOpenaiModel = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
-  const envGroqModel = process.env.GROQ_MODEL || 'llama3-70b-8192';
+  const envGroqModel = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
 
   return {
     aiProvider: settings?.aiProvider || envProvider,
