@@ -16,7 +16,15 @@ import { notFound, errorHandler } from './middleware/errorHandler.js';
 const app = express();
 
 // Core middlewares
-app.use(cors());
+const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+app.use(
+  cors({
+    origin: allowedOrigin,
+    credentials: false, // tumhare axios me withCredentials: false hai, so ok
+  })
+);
+
 app.use(express.json());
 
 // Tenant context middleware
