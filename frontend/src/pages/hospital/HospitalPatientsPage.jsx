@@ -107,11 +107,11 @@ export default function HospitalPatientsPage() {
       )}
       {error && <ErrorBanner message={error} className="mb-4" />}
 
-      <Card className="mb-6">
+      <Card className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Patient roster</h3>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm font-semibold text-slate-700">Patient roster</p>
+            <p className="text-xs text-slate-500">
               {patients.length} patient{patients.length === 1 ? '' : 's'} returned
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function HospitalPatientsPage() {
       </Card>
 
       {isLoading ? (
-        <div className="flex min-h-[300px] items-center justify-center">
+        <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-slate-200 bg-white">
           <Spinner className="h-8 w-8 border-slate-300" />
         </div>
       ) : filteredPatients.length === 0 ? (
@@ -154,68 +154,74 @@ export default function HospitalPatientsPage() {
           className="bg-white"
         />
       ) : (
-        <Card className="overflow-hidden">
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           <div className="w-full overflow-x-auto">
             <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="text-slate-500">
-                  <th className="px-4 py-3 font-medium">Name</th>
-                  <th className="px-4 py-3 font-medium">Email</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Actions</th>
+              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-6 py-4 font-medium">Name</th>
+                  <th className="px-6 py-4 font-medium">Email</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredPatients.map((patient) => (
-                  <tr key={patient._id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3">
+                  <tr key={patient._id} className="transition hover:bg-slate-50/70">
+                    <td className="px-6 py-4">
                       <p className="font-semibold text-slate-900">{patient.name}</p>
                       <p className="text-xs text-slate-500">
                         Joined{' '}
                         {patient.createdAt ? new Date(patient.createdAt).toLocaleDateString() : '—'}
                       </p>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">{patient.email}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-4 text-slate-600">{patient.email}</td>
+                    <td className="px-6 py-4">
                       <Badge variant={patient.status === 'banned' ? 'danger' : 'success'}>
                         {patient.status}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={patient.status === 'banned' ? 'text-emerald-600' : 'text-rose-600'}
-                        onClick={() =>
-                          handleStatusToggle(patient, patient.status === 'banned' ? 'active' : 'banned')
-                        }
-                      >
-                        {patient.status === 'banned' ? (
-                          <>
-                            <CheckCircle2 className="mr-1 h-4 w-4" />
-                            Reinstate
-                          </>
-                        ) : (
-                          <>
-                            <Ban className="mr-1 h-4 w-4" />
-                            Ban
-                          </>
-                        )}
-                      </Button>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={patient.status === 'banned' ? 'text-emerald-600' : 'text-rose-600'}
+                          onClick={() =>
+                            handleStatusToggle(patient, patient.status === 'banned' ? 'active' : 'banned')
+                          }
+                        >
+                          {patient.status === 'banned' ? (
+                            <>
+                              <CheckCircle2 className="mr-1 h-4 w-4" />
+                              Reinstate
+                            </>
+                          ) : (
+                            <>
+                              <Ban className="mr-1 h-4 w-4" />
+                              Ban
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </Card>
+        </div>
       )}
 
-      <div className="mt-6 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-        <ShieldAlert className="mr-2 inline h-4 w-4" />
-        Compliance reminder: banning a patient blocks AI usage and report generation until they are
-        reinstated.
-      </div>
+      <Card className="mt-6 rounded-3xl border border-amber-100 bg-amber-50/60 p-5 text-sm text-amber-800">
+        <div className="flex items-start gap-3">
+          <ShieldAlert className="mt-0.5 h-5 w-5" />
+          <p>
+            Compliance reminder: banning a patient blocks AI usage and report generation until they are
+            reinstated.
+          </p>
+        </div>
+      </Card>
     </HospitalAdminLayout>
   );
 }

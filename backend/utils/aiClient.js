@@ -54,6 +54,7 @@ export const generateHealthAssessment = async ({
   symptomInput,
   qaFlow = [],
   doctors = [],
+  patient,
 }) => {
   const settings = hospital.settings || {};
   const enabledFeatures = settings.enabledFeatures || {};
@@ -82,6 +83,14 @@ export const generateHealthAssessment = async ({
     expertiseTags: doc.expertiseTags || [],
   }));
 
+  const patientAge = Number.isFinite(patient?.age) ? patient.age : 'Not provided';
+  const patientGender = patient?.gender || 'prefer_not_to_say';
+  const demographicSummary = `
+Patient demographics:
+- Age: ${patientAge}
+- Gender: ${patientGender}
+`.trim();
+
   const { aiProvider, openaiModel, groqModel } = await getEffectiveAiConfig();
 
   const systemPrompt = `
@@ -105,6 +114,8 @@ ${symptomInput}
 
 Q&A Follow-up:
 ${JSON.stringify(qaFlow || [], null, 2)}
+
+${demographicSummary}
 
 Available Doctors:
 ${JSON.stringify(doctorSummaries, null, 2)}
@@ -141,6 +152,7 @@ Respond ONLY with valid JSON following this schema:
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.3,
+      response_format: { type: 'json_object' },
     });
   } else if (aiProvider === 'groq') {
     const groqClient = getGroqClient();
@@ -157,6 +169,7 @@ Respond ONLY with valid JSON following this schema:
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.3,
+      response_format: { type: 'json_object' },
     });
   } else {
     throw new Error(`Unsupported AI provider: ${aiProvider}`);
@@ -214,3 +227,104 @@ Respond ONLY with valid JSON following this schema:
 };
 
 export default generateHealthAssessment;
+
+export const generateCheckupFollowup = async ({ hospital, symptomInput, qaFlow = [], patient }) => {
+  const settings = hospital.settings || {};
+  const assistantName = settings.assistantName || 'HealthAI';
+  const assistantTone = settings.assistantTone || 'friendly';
+  const assistantLanguage = settings.assistantLanguage || 'en';
+  const hospitalName = hospital.name || 'your hospital';
+  const aiInstructions = settings.aiInstructions || '';
+  const extraStyleInstructions = settings.extraStyleInstructions || '';
+
+  const patientAge = Number.isFinite(patient?.age) ? patient.age : 'Not provided';
+  const patientGender = patient?.gender || 'prefer_not_to_say';
+
+  const askedQuestionsSummary =
+    qaFlow.length > 0
+      ? qaFlow
+          .map(
+            (item, index) =>
+              `Q${index + 1}: ${item.question || 'Unknown question'}\nPatient answer: ${item.answer || 'Not provided'}`,
+          )
+          .join('\n')
+      : 'No follow-up questions have been asked yet.';
+
+  const systemPrompt = `
+You are ${assistantName}, an AI assistant helping patients describe symptoms before a doctor's visit at ${hospitalName}.
+You must collect enough structured information to run a final pre-assessment, but you do NOT give diagnoses in this chat.
+Patient demographics are ALREADY known: Age ${patientAge}, Gender ${patientGender}. If you ask for age or gender, that is an error—never ask again.
+Ask at most ONE new follow-up question per response and focus on the most critical missing data first.
+Do not repeat or rephrase any question that already appears in the Q&A history. If information is already present, move on.
+The server will stop you after three follow-up questions maximum, so assume you only get three chances.
+Respond ONLY with strict JSON:
+{"mode":"followup","followupQuestion":"clear, novel question","note":"brief guidance"} OR {"mode":"final","followupQuestion":null,"note":"short confirmation"}.
+Maintain a ${assistantTone} tone in ${assistantLanguage}.
+${aiInstructions || ''}
+${extraStyleInstructions || ''}
+`.trim();
+
+  const userPrompt = `
+Symptom Input:
+${symptomInput}
+
+Previously asked questions and answers:
+${askedQuestionsSummary}
+
+Patient demographics (do not ask about them):
+- Age: ${patientAge}
+- Gender: ${patientGender}
+Do not ask for age or gender again; you already know them.
+`.trim();
+
+  const { aiProvider, openaiModel, groqModel } = await getEffectiveAiConfig();
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userPrompt },
+  ];
+
+  let response;
+  if (aiProvider === 'openai') {
+    const client = getOpenAIClient();
+    if (!client) {
+      throw new Error('OpenAI API key not configured.');
+    }
+    response = await client.chat.completions.create({
+      model: openaiModel,
+      messages,
+      temperature: 0.2,
+    });
+  } else if (aiProvider === 'groq') {
+    const client = getGroqClient();
+    if (!client) {
+      throw new Error('Groq API key not configured.');
+    }
+    response = await client.chat.completions.create({
+      model: groqModel,
+      messages,
+      temperature: 0.2,
+    });
+  } else {
+    throw new Error(`Unsupported AI provider: ${aiProvider}`);
+  }
+
+  const content = response.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error('AI response missing content');
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(content);
+  } catch (err) {
+    throw new Error('Failed to parse AI response JSON');
+  }
+
+  const { mode, followupQuestion = null, note = null } = parsed;
+  if (!mode || (mode === 'followup' && !followupQuestion)) {
+    throw new Error('AI follow-up response missing required fields');
+  }
+
+  return { mode, followupQuestion, note };
+};

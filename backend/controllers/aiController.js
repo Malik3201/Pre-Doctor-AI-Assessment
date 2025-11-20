@@ -2,7 +2,7 @@ import Doctor from '../models/Doctor.js';
 import Report from '../models/Report.js';
 import AiUsageLog from '../models/AiUsageLog.js';
 import Hospital from '../models/Hospital.js';
-import { generateHealthAssessment } from '../utils/aiClient.js';
+import { generateHealthAssessment, generateCheckupFollowup } from '../utils/aiClient.js';
 import { sendEmail } from '../utils/emailService.js';
 
 const ensurePatientContext = (req, res) => {
@@ -58,6 +58,7 @@ export const aiHealthCheck = async (req, res, next) => {
       symptomInput,
       qaFlow,
       doctors,
+      patient: req.user,
     });
 
     const {
@@ -137,6 +138,72 @@ export const aiHealthCheck = async (req, res, next) => {
     );
 
     return res.status(201).json({ assistantIntro, report: populatedReport });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const MAX_FOLLOWUP_QUESTIONS = 3;
+
+export const aiCheckupChat = async (req, res, next) => {
+  try {
+    if (!ensurePatientContext(req, res)) {
+      return;
+    }
+
+    const { symptomInput, qaFlow = [] } = req.body || {};
+    if (!symptomInput) {
+      return res.status(400).json({ message: 'symptomInput is required' });
+    }
+
+    const followupCount = Array.isArray(qaFlow) ? qaFlow.length : 0;
+    if (followupCount >= MAX_FOLLOWUP_QUESTIONS) {
+      return res.json({
+        mode: 'final',
+        followupQuestion: null,
+        note: 'Maximum follow-up questions reached; preparing final summary.',
+      });
+    }
+
+    const hospital = await Hospital.findById(req.hospital._id);
+    if (!hospital) {
+      return res.status(400).json({ message: 'Hospital context not found' });
+    }
+
+    const result = await generateCheckupFollowup({
+      hospital,
+      symptomInput,
+      qaFlow,
+      patient: req.user,
+    });
+
+    if (result.mode !== 'followup' || !result.followupQuestion) {
+      return res.json({
+        mode: 'final',
+        followupQuestion: null,
+        note: result.note || 'Proceeding to final summary.',
+      });
+    }
+
+    const normalizedQuestion = result.followupQuestion.toLowerCase().trim();
+    const askedQuestions = qaFlow
+      .map((item) => item.question?.toLowerCase().trim())
+      .filter(Boolean);
+    const isRepeat = askedQuestions.some((question) => question === normalizedQuestion);
+
+    if (isRepeat || followupCount + 1 >= MAX_FOLLOWUP_QUESTIONS) {
+      return res.json({
+        mode: 'final',
+        followupQuestion: null,
+        note: 'Follow-up reached the limit or repeated previous content; preparing final summary.',
+      });
+    }
+
+    return res.json({
+      mode: 'followup',
+      followupQuestion: result.followupQuestion,
+      note: result.note || null,
+    });
   } catch (err) {
     return next(err);
   }

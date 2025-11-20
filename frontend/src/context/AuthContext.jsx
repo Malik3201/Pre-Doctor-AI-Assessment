@@ -74,16 +74,16 @@ export function AuthProvider({ children }) {
   );
 
   const logout = useCallback(
-    (message) => {
+    (arg) => {
+      const message = typeof arg === 'string' ? arg : undefined;
       localStorage.removeItem(STORAGE_TOKEN_KEY);
       localStorage.removeItem(STORAGE_USER_KEY);
       setToken(null);
       setUser(null);
-      if (message) {
-        showToast({ title: message, variant: 'warning' });
-      } else {
-        showToast({ title: 'Signed out', variant: 'info' });
-      }
+      showToast({
+        title: message || 'Signed out',
+        variant: message ? 'warning' : 'info',
+      });
       navigate('/auth/login', { replace: true });
     },
     [navigate, showToast],

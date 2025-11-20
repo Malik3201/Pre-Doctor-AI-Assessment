@@ -19,6 +19,16 @@ const userSchema = new mongoose.Schema(
       },
       default: null,
     },
+    age: {
+      type: Number,
+      min: 0,
+      max: 120,
+    },
+    gender: {
+      type: String,
+      enum: ['male', 'female', 'other', 'prefer_not_to_say'],
+      default: 'prefer_not_to_say',
+    },
     status: {
       type: String,
       enum: ['active', 'banned'],

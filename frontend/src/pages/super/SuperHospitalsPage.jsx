@@ -274,7 +274,7 @@ export default function SuperHospitalsPage() {
       actions={
         <Button onClick={() => setIsCreateOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Create Hospital
+          Create hospital
         </Button>
       }
     >
@@ -291,44 +291,65 @@ export default function SuperHospitalsPage() {
       )}
       {error && <ErrorBanner message={error} className="mb-4" />}
 
-      <Card className="mb-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="grid gap-4 pb-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Card className="rounded-2xl border border-slate-200 bg-white/90">
+          <p className="text-xs uppercase tracking-wide text-slate-500">Tenants loaded</p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">{hospitals.length}</p>
+        </Card>
+        <Card className="rounded-2xl border border-slate-200 bg-white/90">
+          <p className="text-xs uppercase tracking-wide text-slate-500">Active</p>
+          <p className="mt-2 text-3xl font-semibold text-emerald-600">
+            {hospitals.filter((h) => h.status === 'active').length}
+          </p>
+        </Card>
+        <Card className="rounded-2xl border border-slate-200 bg-white/90">
+          <p className="text-xs uppercase tracking-wide text-slate-500">Suspended</p>
+          <p className="mt-2 text-3xl font-semibold text-amber-600">
+            {hospitals.filter((h) => h.status === 'suspended').length}
+          </p>
+        </Card>
+        <Card className="rounded-2xl border border-slate-200 bg-white/90">
+          <p className="text-xs uppercase tracking-wide text-slate-500">Banned</p>
+          <p className="mt-2 text-3xl font-semibold text-rose-600">
+            {hospitals.filter((h) => h.status === 'banned').length}
+          </p>
+        </Card>
+      </div>
+
+      <Card className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Hospitals</h3>
-            <p className="text-sm text-slate-500">
-              {hospitals.length} tenant{hospitals.length === 1 ? '' : 's'} loaded
-            </p>
+            <p className="text-sm font-semibold text-slate-700">Filter tenants</p>
+            <p className="text-xs text-slate-500">Slice the directory by status or query.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-2">
-              <Select
-                value={statusFilter}
-                onChange={(event) => handleStatusFilterChange(event.target.value)}
-                className="min-w-[160px]"
-              >
-                {statusOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
-              <Button variant="ghost" onClick={() => fetchHospitals()}>
-                <RefreshCcw className="mr-2 h-4 w-4" />
-                Refresh
-              </Button>
-            </div>
+            <Select
+              value={statusFilter}
+              onChange={(event) => handleStatusFilterChange(event.target.value)}
+              className="min-w-[160px]"
+            >
+              {statusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
             <Input
-              placeholder="Search by name or subdomain..."
+              placeholder="Search by name or subdomain"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               className="w-full sm:w-72"
             />
+            <Button variant="outline" onClick={() => fetchHospitals()}>
+              <RefreshCcw className="mr-2 h-4 w-4" />
+              Refresh
+            </Button>
           </div>
         </div>
       </Card>
 
       {isLoading ? (
-        <div className="flex min-h-[300px] items-center justify-center">
+        <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-slate-200 bg-white">
           <Spinner className="h-8 w-8 border-slate-300" />
         </div>
       ) : filteredHospitals.length === 0 ? (
@@ -339,45 +360,43 @@ export default function SuperHospitalsPage() {
           className="bg-white"
         />
       ) : (
-        <Card className="overflow-hidden">
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           <div className="w-full overflow-x-auto">
             <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="text-slate-500">
-                  <th className="px-4 py-3 font-medium">Name</th>
-                  <th className="px-4 py-3 font-medium">Subdomain</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Plan</th>
-                  <th className="px-4 py-3 font-medium">AI Usage</th>
-                  <th className="px-4 py-3 font-medium">Created</th>
-                  <th className="px-4 py-3 font-medium">Actions</th>
+              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-6 py-4 font-medium">Hospital</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium">Plan</th>
+                  <th className="px-6 py-4 font-medium">AI usage</th>
+                  <th className="px-6 py-4 font-medium">Created</th>
+                  <th className="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredHospitals.map((hospital) => (
-                  <tr key={hospital._id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3">
+                  <tr key={hospital._id} className="transition hover:bg-slate-50/70">
+                    <td className="px-6 py-4">
                       <p className="font-semibold text-slate-900">{hospital.name}</p>
-                      <p className="text-xs text-slate-500">ID: {hospital._id.slice(-6)}</p>
+                      <p className="text-xs text-slate-500">{hospital.subdomain}.yourdomain.com</p>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">{hospital.subdomain}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-4">
                       <Badge variant={statusBadgeMap[hospital.status] || 'neutral'}>
                         {hospital.status}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">{hospital.planName || 'Unassigned'}</td>
-                    <td className="px-4 py-3 text-slate-600">
-                      <div className="flex items-center gap-2">
+                    <td className="px-6 py-4 text-slate-700">{hospital.planName || 'Unassigned'}</td>
+                    <td className="px-6 py-4 text-slate-700">
+                      <div className="flex items-center gap-3">
                         <Activity className="h-4 w-4 text-slate-400" />
                         {formatUsage(hospital.aiChecksUsedThisMonth, hospital.maxAiChecksPerMonth)}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">
+                    <td className="px-6 py-4 text-slate-700">
                       {hospital.createdAt ? new Date(hospital.createdAt).toLocaleDateString() : '—'}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-2">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-2">
                         <Select
                           value={hospital.status}
                           onChange={(event) => handleStatusUpdate(hospital._id, event.target.value)}
@@ -393,9 +412,14 @@ export default function SuperHospitalsPage() {
                           <MoreHorizontal className="mr-2 h-4 w-4" />
                           Plan
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => openResetModal(hospital)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-rose-600"
+                          onClick={() => openResetModal(hospital)}
+                        >
                           <ShieldAlert className="mr-2 h-4 w-4" />
-                          Reset admin
+                          Reset
                         </Button>
                       </div>
                     </td>
@@ -404,10 +428,19 @@ export default function SuperHospitalsPage() {
               </tbody>
             </table>
           </div>
-        </Card>
+        </div>
       )}
 
-      {/* Create hospital modal */}
+      <Card className="mt-6 rounded-3xl border border-amber-100 bg-amber-50/60 p-5 text-sm text-amber-800">
+        <div className="flex items-start gap-3">
+          <ShieldAlert className="mt-0.5 h-5 w-5" />
+          <p>
+            Compliance reminder: adjusting status immediately impacts patient access and AI usage for
+            that tenant. Confirm with regional teams before banning hospitals.
+          </p>
+        </div>
+      </Card>
+
       <Modal
         open={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
@@ -423,7 +456,7 @@ export default function SuperHospitalsPage() {
           </>
         }
       >
-        <form id={CREATE_FORM_ID} className="space-y-4" onSubmit={handleCreateHospital}>
+        <form id={CREATE_FORM_ID} className="space-y-5" onSubmit={handleCreateHospital}>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label htmlFor="name">Hospital name</Label>
@@ -487,7 +520,7 @@ export default function SuperHospitalsPage() {
               />
             </div>
           </div>
-          <div className="rounded-2xl border border-slate-200 p-4">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
             <p className="mb-4 text-sm font-semibold text-slate-700">Initial administrator</p>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
@@ -527,7 +560,6 @@ export default function SuperHospitalsPage() {
         </form>
       </Modal>
 
-      {/* Assign plan modal */}
       <Modal
         open={isPlanModalOpen}
         onClose={() => setIsPlanModalOpen(false)}
@@ -574,7 +606,6 @@ export default function SuperHospitalsPage() {
         </form>
       </Modal>
 
-      {/* Reset password modal */}
       <Modal
         open={isResetModalOpen}
         onClose={() => setIsResetModalOpen(false)}

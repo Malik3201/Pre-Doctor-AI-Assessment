@@ -15,9 +15,14 @@ import {
 
 const router = express.Router();
 
-router.use(protect, restrictTo('HOSPITAL_ADMIN'));
+router.use(protect);
 
-router.route('/settings').get(getHospitalSettings).put(updateHospitalSettings);
+router
+  .route('/settings')
+  .get(restrictTo('HOSPITAL_ADMIN', 'PATIENT'), getHospitalSettings)
+  .put(restrictTo('HOSPITAL_ADMIN'), updateHospitalSettings);
+
+router.use(restrictTo('HOSPITAL_ADMIN'));
 
 router.route('/doctors').post(createDoctor).get(getDoctors);
 router.route('/doctors/:id').get(getDoctorById).put(updateDoctor).delete(deleteDoctor);

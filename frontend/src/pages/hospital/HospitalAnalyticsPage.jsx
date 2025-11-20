@@ -66,7 +66,7 @@ export default function HospitalAnalyticsPage() {
       )}
 
       {isLoading ? (
-        <div className="flex min-h-[320px] items-center justify-center">
+        <div className="flex min-h-[320px] items-center justify-center rounded-3xl border border-slate-200 bg-white">
           <Spinner className="h-8 w-8 border-slate-300" />
         </div>
       ) : !analytics ? (
@@ -77,15 +77,20 @@ export default function HospitalAnalyticsPage() {
           className="bg-white"
         />
       ) : (
-        <div className="space-y-8">
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="space-y-10">
+          <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {statItems.map((stat) => {
               const Icon = stat.icon;
               return (
-                <Card key={stat.label}>
+                <Card
+                  key={stat.label}
+                  className="rounded-2xl border border-slate-200 bg-white shadow-sm"
+                >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm uppercase tracking-wide text-slate-500">{stat.label}</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        {stat.label}
+                      </p>
                       <p className="mt-2 text-2xl font-semibold text-slate-900">{stat.value}</p>
                     </div>
                     <Icon className="h-5 w-5 text-slate-400" />
@@ -93,44 +98,52 @@ export default function HospitalAnalyticsPage() {
                 </Card>
               );
             })}
-          </div>
+          </section>
 
-          <Card className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm uppercase tracking-wide text-slate-500">Plan consumption</p>
-                <h3 className="text-lg font-semibold text-slate-900">
-                  {analytics.planName || 'No plan assigned'}
-                </h3>
+          <section>
+            <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Plan consumption
+                  </p>
+                  <h3 className="mt-2 text-xl font-semibold text-slate-900">
+                    {analytics.planName || 'No plan assigned'}
+                  </h3>
+                </div>
+                <Badge variant={usagePercent > 90 ? 'warning' : 'neutral'}>
+                  {usagePercent}% used
+                </Badge>
               </div>
-              <Badge variant={usagePercent > 90 ? 'warning' : 'neutral'}>{usagePercent}% used</Badge>
-            </div>
-            <p className="text-sm text-slate-500">
-              {numberFormatter.format(analytics.aiChecksUsedThisMonth || 0)} /{' '}
-              {numberFormatter.format(analytics.maxAiChecksPerMonth || 0)} AI checks this cycle.
-            </p>
-            <div className="h-3 rounded-full bg-slate-100">
-              <div
-                className="h-full rounded-full bg-blue-600 transition-all"
-                style={{ width: `${usagePercent}%` }}
-              />
-            </div>
-            <div className="text-xs text-slate-500">
-              Billing window:{' '}
-              {analytics.billingPeriodStart
-                ? new Date(analytics.billingPeriodStart).toLocaleDateString()
-                : '—'}{' '}
-              –{' '}
-              {analytics.billingPeriodEnd
-                ? new Date(analytics.billingPeriodEnd).toLocaleDateString()
-                : '—'}
-            </div>
-          </Card>
+              <p className="mt-3 text-sm text-slate-500">
+                {numberFormatter.format(analytics.aiChecksUsedThisMonth || 0)} /{' '}
+                {numberFormatter.format(analytics.maxAiChecksPerMonth || 0)} AI checks this cycle.
+              </p>
+              <div className="mt-4 h-3 rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-emerald-500 transition-all"
+                  style={{ width: `${usagePercent}%` }}
+                />
+              </div>
+              <div className="mt-4 text-xs text-slate-500">
+                Billing window:{' '}
+                {analytics.billingPeriodStart
+                  ? new Date(analytics.billingPeriodStart).toLocaleDateString()
+                  : '—'}{' '}
+                –{' '}
+                {analytics.billingPeriodEnd
+                  ? new Date(analytics.billingPeriodEnd).toLocaleDateString()
+                  : '—'}
+              </div>
+            </Card>
+          </section>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
+          <section className="grid gap-6 lg:grid-cols-2">
+            <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
               <div className="flex items-center gap-3">
-                <BarChart2 className="h-5 w-5 text-blue-500" />
+                <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-500">
+                  <BarChart2 className="h-5 w-5" />
+                </div>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900">Engagement summary</h3>
                   <p className="text-sm text-slate-500">
@@ -138,29 +151,38 @@ export default function HospitalAnalyticsPage() {
                   </p>
                 </div>
               </div>
-              <ul className="mt-4 space-y-3 text-sm text-slate-600">
-                <li>
-                  • {numberFormatter.format(analytics.totalPatients || 0)} active patients — ensure
-                  onboarding communications remain current.
+              <ul className="mt-6 space-y-3 text-sm text-slate-600">
+                <li className="flex items-start gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  <span>
+                    {numberFormatter.format(analytics.totalPatients || 0)} active patients — ensure
+                    onboarding communications remain current.
+                  </span>
                 </li>
-                <li>
-                  • {numberFormatter.format(analytics.bannedPatients || 0)} banned patients — review
-                  status weekly to avoid unnecessary blocks.
+                <li className="flex items-start gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-amber-500" />
+                  <span>
+                    {numberFormatter.format(analytics.bannedPatients || 0)} banned patients — review
+                    status weekly to avoid unnecessary blocks.
+                  </span>
                 </li>
-                <li>
-                  • {numberFormatter.format(analytics.totalReports || 0)} AI reports generated — keep
-                  PDF templates aligned with brand.
+                <li className="flex items-start gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-sky-500" />
+                  <span>
+                    {numberFormatter.format(analytics.totalReports || 0)} AI reports generated — keep
+                    PDF templates aligned with brand.
+                  </span>
                 </li>
               </ul>
             </Card>
-            <Card>
+            <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900">Next instrumentation</h3>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-3 text-sm text-slate-500">
                 Detailed charts (risk mix, doctor load) will land once backend exposes richer
                 telemetry. For now, monitor usage here and export logs from the admin API if needed.
               </p>
             </Card>
-          </div>
+          </section>
         </div>
       )}
     </HospitalAdminLayout>

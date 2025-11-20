@@ -179,7 +179,7 @@ export default function SuperPlansPage() {
       actions={
         <Button onClick={openCreateModal}>
           <PlusCircle className="mr-2 h-4 w-4" />
-          New Plan
+          New plan
         </Button>
       }
     >
@@ -196,11 +196,42 @@ export default function SuperPlansPage() {
       )}
       {error && <ErrorBanner message={error} className="mb-4" />}
 
-      <Card className="mb-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="grid gap-4 pb-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Card className="rounded-2xl border border-slate-200 bg-white/90">
+          <p className="text-xs uppercase tracking-wide text-slate-500">Total plans</p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">{plans.length}</p>
+        </Card>
+        <Card className="rounded-2xl border border-slate-200 bg-white/90">
+          <p className="text-xs uppercase tracking-wide text-slate-500">Active</p>
+          <p className="mt-2 text-3xl font-semibold text-emerald-600">
+            {plans.filter((plan) => plan.isActive).length}
+          </p>
+        </Card>
+        <Card className="rounded-2xl border border-slate-200 bg-white/90">
+          <p className="text-xs uppercase tracking-wide text-slate-500">Inactive</p>
+          <p className="mt-2 text-3xl font-semibold text-amber-500">
+            {plans.filter((plan) => !plan.isActive).length}
+          </p>
+        </Card>
+        <Card className="rounded-2xl border border-slate-200 bg-white/90">
+          <p className="text-xs uppercase tracking-wide text-slate-500">Average quota</p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">
+            {plans.length
+              ? Math.round(
+                  plans.reduce((sum, plan) => sum + (plan.maxAiChecksPerMonth || 0), 0) / plans.length,
+                ).toLocaleString()
+              : 0}
+          </p>
+        </Card>
+      </div>
+
+      <Card className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Plan catalog</h3>
-            <p className="text-sm text-slate-500">Manage pricing and AI quotas across tiers.</p>
+            <p className="text-sm font-semibold text-slate-700">Catalog filters</p>
+            <p className="text-xs text-slate-500">
+              Narrow the view by plan status or search for a tier.
+            </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Select
@@ -228,7 +259,7 @@ export default function SuperPlansPage() {
       </Card>
 
       {isLoading ? (
-        <div className="flex min-h-[300px] items-center justify-center">
+        <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-slate-200 bg-white">
           <Spinner className="h-8 w-8 border-slate-300" />
         </div>
       ) : filteredPlans.length === 0 ? (
@@ -241,35 +272,41 @@ export default function SuperPlansPage() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredPlans.map((plan) => (
-            <Card key={plan._id} className="flex h-full flex-col justify-between">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-full bg-blue-50 p-3 text-blue-600">
-                      <Layers className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-semibold text-slate-900">{plan.name}</h4>
-                      <p className="text-sm text-slate-500">{plan.description || 'No description'}</p>
-                    </div>
+            <div
+              key={plan._id}
+              className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-500">
+                    <Layers className="h-5 w-5" />
                   </div>
-                  <Badge variant={plan.isActive ? 'success' : 'warning'}>
-                    {plan.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
+                  <div>
+                    <h4 className="text-lg font-semibold text-slate-900">{plan.name}</h4>
+                    <p className="text-xs uppercase tracking-wide text-slate-400">
+                      {plan.isActive ? 'Available to tenants' : 'Inactive'}
+                    </p>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 text-sm text-slate-600">
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-slate-500">Monthly price</p>
-                    <p className="text-lg font-semibold text-slate-900">
-                      ${Number(plan.priceMonthly || 0).toFixed(2)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-slate-500">AI checks</p>
-                    <p className="text-lg font-semibold text-slate-900">
-                      {plan.maxAiChecksPerMonth?.toLocaleString() || '—'}
-                    </p>
-                  </div>
+                <Badge variant={plan.isActive ? 'success' : 'warning'}>
+                  {plan.isActive ? 'Active' : 'Inactive'}
+                </Badge>
+              </div>
+              <p className="mt-4 text-sm text-slate-500">
+                {plan.description || 'No description provided'}
+              </p>
+              <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
+                <div className="rounded-2xl border border-slate-100 p-3">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Monthly price</p>
+                  <p className="mt-1 text-xl font-semibold text-slate-900">
+                    ${Number(plan.priceMonthly || 0).toFixed(2)}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-100 p-3">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">AI checks</p>
+                  <p className="mt-1 text-xl font-semibold text-slate-900">
+                    {plan.maxAiChecksPerMonth?.toLocaleString() || '—'}
+                  </p>
                 </div>
               </div>
               <div className="mt-6 flex flex-wrap gap-3">
@@ -280,14 +317,14 @@ export default function SuperPlansPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleDeactivate(plan)}
                   className="text-slate-600"
+                  onClick={() => handleDeactivate(plan)}
                 >
                   <ShieldOff className="mr-2 h-4 w-4" />
                   {plan.isActive ? 'Deactivate' : 'Activate'}
                 </Button>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       )}
@@ -307,7 +344,7 @@ export default function SuperPlansPage() {
           </>
         }
       >
-        <form id={PLAN_FORM_ID} className="space-y-4" onSubmit={handleSubmitPlan}>
+        <form id={PLAN_FORM_ID} className="space-y-5" onSubmit={handleSubmitPlan}>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label htmlFor="plan-name">Name</Label>
@@ -340,7 +377,7 @@ export default function SuperPlansPage() {
               value={formState.description}
               onChange={handleFormChange}
               rows={3}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
@@ -363,7 +400,7 @@ export default function SuperPlansPage() {
                   name="isActive"
                   checked={formState.isActive}
                   onChange={handleFormChange}
-                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                 />
                 Active
               </label>

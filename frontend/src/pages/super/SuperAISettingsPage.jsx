@@ -99,56 +99,62 @@ export default function SuperAISettingsPage() {
       )}
       {error && <ErrorBanner message={error} className="mb-4" />}
 
-      <Card className="max-w-3xl space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-blue-50 p-3 text-blue-600">
-            <Brain className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900">AI provider</h3>
-            <p className="text-sm text-slate-500">
-              Choose the vendor powering symptom analysis. Hospitals inherit this setting.
-            </p>
-          </div>
+      {isLoading ? (
+        <div className="flex min-h-[320px] items-center justify-center rounded-3xl border border-slate-200 bg-white">
+          <Spinner className="h-8 w-8 border-slate-300" />
         </div>
-
-        {isLoading ? (
-          <div className="flex min-h-[200px] items-center justify-center">
-            <Spinner className="h-8 w-8 border-slate-300" />
-          </div>
-        ) : (
-          <>
-            <form id={SETTINGS_FORM_ID} className="space-y-6" onSubmit={handleSubmit}>
-              <div className="grid gap-4 md:grid-cols-2">
-                {providerOptions.map((provider) => (
-                  <label
-                    key={provider.value}
-                    className={`cursor-pointer rounded-2xl border p-4 transition ${
-                      form.aiProvider === provider.value
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-slate-900">{provider.label}</p>
-                        <p className="text-xs text-slate-500">{provider.description}</p>
-                      </div>
-                      <input
-                        type="radio"
-                        name="aiProvider"
-                        value={provider.value}
-                        checked={form.aiProvider === provider.value}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </label>
-                ))}
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+          <Card className="space-y-8 rounded-3xl border border-slate-200 p-6 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-500">
+                <Brain className="h-5 w-5" />
               </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Provider & models</h3>
+                <p className="text-sm text-slate-500">
+                  Hospitals inherit this configuration. Updates roll out instantly across tenants.
+                </p>
+              </div>
+            </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <Label htmlFor="openaiModel">OpenAI model</Label>
+            <form id={SETTINGS_FORM_ID} className="space-y-8" onSubmit={handleSubmit}>
+              <section>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Provider selection
+                </p>
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  {providerOptions.map((provider) => (
+                    <label
+                      key={provider.value}
+                      className={`cursor-pointer rounded-2xl border p-4 transition ${
+                        form.aiProvider === provider.value
+                          ? 'border-emerald-500 bg-emerald-50'
+                          : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-slate-900">{provider.label}</p>
+                          <p className="text-xs text-slate-500">{provider.description}</p>
+                        </div>
+                        <input
+                          type="radio"
+                          name="aiProvider"
+                          value={provider.value}
+                          checked={form.aiProvider === provider.value}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </section>
+
+              <section className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-3 rounded-2xl border border-slate-100 p-4">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">OpenAI settings</p>
+                  <Label htmlFor="openaiModel">Model identifier</Label>
                   <Input
                     id="openaiModel"
                     name="openaiModel"
@@ -156,12 +162,13 @@ export default function SuperAISettingsPage() {
                     onChange={handleChange}
                     placeholder="e.g. gpt-4.1-mini"
                   />
-                  <p className="mt-2 text-xs text-slate-500">
-                    Ensure this matches an enabled deployment in your OpenAI account.
+                  <p className="text-xs text-slate-500">
+                    Ensure this deployment exists in your OpenAI org; requests fan out per tenant.
                   </p>
                 </div>
-                <div>
-                  <Label htmlFor="groqModel">Groq model</Label>
+                <div className="space-y-3 rounded-2xl border border-slate-100 p-4">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Groq settings</p>
+                  <Label htmlFor="groqModel">Model identifier</Label>
                   <Input
                     id="groqModel"
                     name="groqModel"
@@ -169,22 +176,56 @@ export default function SuperAISettingsPage() {
                     onChange={handleChange}
                     placeholder="e.g. mixtral-8x7b"
                   />
-                  <p className="mt-2 text-xs text-slate-500">
-                    Used when Groq is selected or as a fallback. API keys stay on the server.
+                  <p className="text-xs text-slate-500">
+                    Used when Groq is selected or as fallback. Keys remain server-side.
                   </p>
                 </div>
+              </section>
+
+              <div className="flex items-center justify-end gap-3">
+                <Button type="submit" form={SETTINGS_FORM_ID} disabled={isSaving}>
+                  <Save className="mr-2 h-4 w-4" />
+                  {isSaving ? 'Saving…' : 'Save changes'}
+                </Button>
               </div>
             </form>
+          </Card>
 
-            <div className="flex items-center justify-end">
-              <Button type="submit" form={SETTINGS_FORM_ID} disabled={isSaving}>
-                <Save className="mr-2 h-4 w-4" />
-                {isSaving ? 'Saving…' : 'Save changes'}
-              </Button>
-            </div>
-          </>
-        )}
-      </Card>
+          <div className="space-y-6">
+            <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Current summary</p>
+              <h4 className="mt-2 text-xl font-semibold text-slate-900">
+                {form.aiProvider === 'openai' ? 'OpenAI' : 'Groq'} in production
+              </h4>
+              <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                <li>
+                  • Primary model:{' '}
+                  <span className="font-semibold text-slate-900">
+                    {form.aiProvider === 'openai' ? form.openaiModel || 'Not set' : form.groqModel || 'Not set'}
+                  </span>
+                </li>
+                <li>
+                  • Fallback:{' '}
+                  <span className="font-semibold text-slate-900">
+                    {form.aiProvider === 'openai'
+                      ? form.groqModel || 'Groq disabled'
+                      : form.openaiModel || 'OpenAI disabled'}
+                  </span>
+                </li>
+                <li>• Changes propagate instantly across all hospital tenants.</li>
+              </ul>
+            </Card>
+
+            <Card className="rounded-3xl border border-amber-100 bg-amber-50/70 p-5 text-sm text-amber-800">
+              <p className="font-semibold">Operational note</p>
+              <p className="mt-2">
+                Switching providers may impact latency and quota consumption. Coordinate with DevOps
+                before toggling during peak hours.
+              </p>
+            </Card>
+          </div>
+        </div>
+      )}
     </SuperAdminLayout>
   );
 }

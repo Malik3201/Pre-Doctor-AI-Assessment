@@ -7,6 +7,8 @@ const buildUserResponse = (user) => ({
   email: user.email,
   role: user.role,
   hospital: user.hospital,
+  age: user.age,
+  gender: user.gender,
 });
 
 export const login = async (req, res, next) => {
@@ -43,16 +45,29 @@ export const login = async (req, res, next) => {
   }
 };
 
+const ALLOWED_GENDERS = ['male', 'female', 'other', 'prefer_not_to_say'];
+
 export const registerPatient = async (req, res, next) => {
   try {
     if (!req.hospital) {
       return res.status(400).json({ message: 'Hospital context is required' });
     }
 
-    const { name, email, password } = req.body || {};
+    const { name, email, password, age, gender } = req.body || {};
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Name, email, and password are required' });
+    if (!name || !email || !password || age === undefined || !gender) {
+      return res
+        .status(400)
+        .json({ message: 'Name, email, password, age, and gender are required' });
+    }
+
+    const parsedAge = Number(age);
+    if (Number.isNaN(parsedAge) || parsedAge < 1 || parsedAge > 120) {
+      return res.status(400).json({ message: 'Please provide a valid age between 1 and 120.' });
+    }
+
+    if (!ALLOWED_GENDERS.includes(gender)) {
+      return res.status(400).json({ message: 'Invalid gender selection.' });
     }
 
     const existingUser = await User.findOne({ email, hospital: req.hospital._id });
@@ -66,6 +81,8 @@ export const registerPatient = async (req, res, next) => {
       password,
       role: 'PATIENT',
       hospital: req.hospital._id,
+      age: parsedAge,
+      gender,
     });
 
     const token = generateToken(user._id);

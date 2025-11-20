@@ -4,16 +4,31 @@ import AuthLayout from '../../layouts/AuthLayout';
 import Input from '../../components/ui/Input';
 import Label from '../../components/ui/Label';
 import Button from '../../components/ui/Button';
+import Select from '../../components/ui/Select';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import useTenant from '../../hooks/useTenant';
 import apiClient from '../../api/apiClient';
 import useAuth from '../../hooks/useAuth';
 
+const GENDER_OPTIONS = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+  { value: 'other', label: 'Other' },
+  { value: 'prefer_not_to_say', label: 'Prefer not to say' },
+];
+
 export default function PatientRegisterPage() {
   const { subdomain, isRoot } = useTenant();
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    age: '',
+    gender: 'prefer_not_to_say',
+  });
   const [status, setStatus] = useState({ error: '', success: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,10 +51,22 @@ export default function PatientRegisterPage() {
       return;
     }
 
+    const parsedAge = Number(form.age);
+    if (Number.isNaN(parsedAge) || parsedAge < 1 || parsedAge > 120) {
+      setStatus({ error: 'Please provide a valid age between 1 and 120.', success: '' });
+      return;
+    }
+
     setStatus({ error: '', success: '' });
     setIsSubmitting(true);
     try {
-      const payload = { name: form.name.trim(), email: form.email.trim(), password: form.password };
+      const payload = {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        age: parsedAge,
+        gender: form.gender,
+      };
       await apiClient.post('/auth/patient/register', payload, { __isAuthRequest: true });
       await login({ email: payload.email, password: payload.password });
       navigate('/app/dashboard', { replace: true });
@@ -110,6 +137,30 @@ export default function PatientRegisterPage() {
             onChange={handleChange}
             required
           />
+        </div>
+        <div>
+          <Label htmlFor="age">Age</Label>
+          <Input
+            id="age"
+            name="age"
+            type="number"
+            min="1"
+            max="120"
+            placeholder="e.g. 32"
+            value={form.age}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="gender">Gender</Label>
+          <Select id="gender" name="gender" value={form.gender} onChange={handleChange}>
+            {GENDER_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
         </div>
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? 'Submitting...' : 'Register'}

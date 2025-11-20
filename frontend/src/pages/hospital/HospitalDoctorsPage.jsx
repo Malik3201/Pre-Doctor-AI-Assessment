@@ -189,11 +189,11 @@ export default function HospitalDoctorsPage() {
       )}
       {error && <ErrorBanner message={error} className="mb-4" />}
 
-      <Card className="mb-6">
+      <Card className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Roster snapshot</h3>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm font-semibold text-slate-700">Roster snapshot</p>
+            <p className="text-xs text-slate-500">
               {doctors.length} doctor{doctors.length === 1 ? '' : 's'} on record
             </p>
           </div>
@@ -223,7 +223,7 @@ export default function HospitalDoctorsPage() {
       </Card>
 
       {isLoading ? (
-        <div className="flex min-h-[300px] items-center justify-center">
+        <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-slate-200 bg-white">
           <Spinner className="h-8 w-8 border-slate-300" />
         </div>
       ) : filteredDoctors.length === 0 ? (
@@ -234,40 +234,40 @@ export default function HospitalDoctorsPage() {
           className="bg-white"
         />
       ) : (
-        <Card className="overflow-hidden">
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           <div className="w-full overflow-x-auto">
             <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="text-slate-500">
-                  <th className="px-4 py-3 font-medium">Name</th>
-                  <th className="px-4 py-3 font-medium">Specialization</th>
-                  <th className="px-4 py-3 font-medium">Experience</th>
-                  <th className="px-4 py-3 font-medium">Expertise</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Actions</th>
+              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-6 py-4 font-medium">Name</th>
+                  <th className="px-6 py-4 font-medium">Specialization</th>
+                  <th className="px-6 py-4 font-medium">Experience</th>
+                  <th className="px-6 py-4 font-medium">Expertise</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredDoctors.map((doctor) => (
-                  <tr key={doctor._id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3">
+                  <tr key={doctor._id} className="transition hover:bg-slate-50/70">
+                    <td className="px-6 py-4">
                       <p className="font-semibold text-slate-900">{doctor.name}</p>
                       <p className="text-xs text-slate-500">{doctor.timings || 'Timings TBD'}</p>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">{doctor.specialization}</td>
-                    <td className="px-4 py-3 text-slate-600">
+                    <td className="px-6 py-4 text-slate-600">{doctor.specialization}</td>
+                    <td className="px-6 py-4 text-slate-600">
                       {doctor.experienceYears ? `${doctor.experienceYears} yrs` : '—'}
                     </td>
-                    <td className="px-4 py-3 text-slate-600">
+                    <td className="px-6 py-4 text-slate-600">
                       {(doctor.expertiseTags || []).slice(0, 3).join(', ') || '—'}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-4">
                       <Badge variant={doctor.status === 'active' ? 'success' : 'neutral'}>
                         {doctor.status}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-2">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="outline"
                           size="sm"
@@ -292,7 +292,7 @@ export default function HospitalDoctorsPage() {
               </tbody>
             </table>
           </div>
-        </Card>
+        </div>
       )}
 
       <Modal

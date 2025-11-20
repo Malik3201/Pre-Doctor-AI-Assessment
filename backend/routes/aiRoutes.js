@@ -1,9 +1,9 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { protect, restrictTo } from '../middleware/authMiddleware.js';
-import { aiHealthCheck } from '../controllers/aiController.js';
+import { aiHealthCheck, aiCheckupChat } from '../controllers/aiController.js';
 import { validateBody } from '../middleware/validate.js';
-import { healthCheckSchema } from '../validation/aiSchemas.js';
+import { healthCheckSchema, checkupChatSchema } from '../validation/aiSchemas.js';
 
 const router = express.Router();
 
@@ -15,6 +15,7 @@ const aiLimiter = rateLimit({
 
 router.use(protect, restrictTo('PATIENT'));
 
+router.post('/checkup/chat', aiLimiter, validateBody(checkupChatSchema), aiCheckupChat);
 router.post('/health-check', aiLimiter, validateBody(healthCheckSchema), aiHealthCheck);
 
 export default router;

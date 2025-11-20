@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Activity, FileText, RefreshCcw, Stethoscope, UsersRound } from 'lucide-react';
+import { Activity, Building2, FileText, RefreshCcw, Stethoscope, UsersRound } from 'lucide-react';
 import HospitalAdminLayout from '../../layouts/HospitalAdminLayout';
 import StatCard from '../../components/ui/StatCard';
 import Card from '../../components/ui/Card';
@@ -89,23 +89,27 @@ export default function HospitalDashboardPage() {
       )}
 
       {isLoading ? (
-        <div className="flex min-h-[320px] items-center justify-center">
+        <div className="flex min-h-[320px] items-center justify-center rounded-3xl border border-slate-200 bg-white">
           <Spinner className="h-8 w-8 border-slate-300" />
         </div>
       ) : (
-        <>
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="space-y-10">
+          <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {statItems.map((stat) => (
-              <StatCard key={stat.label} {...stat} />
+              <StatCard
+                key={stat.label}
+                {...stat}
+                className="rounded-2xl border border-slate-200 bg-white shadow-sm"
+              />
             ))}
-          </div>
+          </section>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <Card>
+          <section className="grid gap-6 lg:grid-cols-2">
+            <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm uppercase tracking-wide text-slate-500">Plan usage</p>
-                  <h3 className="text-lg font-semibold text-slate-900">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Plan usage</p>
+                  <h3 className="mt-2 text-xl font-semibold text-slate-900">
                     {analytics?.planName || 'Unassigned'}
                   </h3>
                 </div>
@@ -113,14 +117,14 @@ export default function HospitalDashboardPage() {
                   {usagePercent}% used
                 </Badge>
               </div>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-3 text-sm text-slate-500">
                 {numberFormatter.format(analytics?.aiChecksUsedThisMonth || 0)} /{' '}
                 {numberFormatter.format(analytics?.maxAiChecksPerMonth || 0)} AI checks this billing
                 period.
               </p>
               <div className="mt-4 h-3 rounded-full bg-slate-100">
                 <div
-                  className="h-full rounded-full bg-blue-600 transition-all"
+                  className="h-full rounded-full bg-emerald-500 transition-all"
                   style={{ width: `${usagePercent}%` }}
                 />
               </div>
@@ -139,42 +143,56 @@ export default function HospitalDashboardPage() {
                 </span>
               </div>
             </Card>
-            <Card>
-              <p className="text-sm uppercase tracking-wide text-slate-500">Quick context</p>
-              <h3 className="text-lg font-semibold text-slate-900">{settings?.name}</h3>
-              <p className="mt-2 text-sm text-slate-500">{settings?.settings?.emergencyText}</p>
-              <div className="mt-4 flex flex-wrap gap-3 text-xs text-slate-600">
-                <Badge variant="neutral">
+            <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-500">
+                  <Building2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Quick context</p>
+                  <h3 className="mt-1 text-xl font-semibold text-slate-900">{settings?.name}</h3>
+                </div>
+              </div>
+              <p className="mt-4 text-sm text-slate-500">{settings?.settings?.emergencyText}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Badge variant="neutral" className="text-xs">
                   Assistant: {settings?.settings?.assistantName || 'Not set'}
                 </Badge>
-                <Badge variant="neutral">
+                <Badge variant="neutral" className="text-xs">
                   Tone: {settings?.settings?.assistantTone || 'Default'}
                 </Badge>
-                <Badge variant="neutral">
+                <Badge variant="neutral" className="text-xs">
                   Language: {settings?.settings?.assistantLanguage || 'En'}
                 </Badge>
               </div>
             </Card>
-          </div>
+          </section>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <Card>
+          <section className="grid gap-6 lg:grid-cols-2">
+            <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900">Recent highlights</h3>
               <ul className="mt-4 space-y-3 text-sm text-slate-600">
-                <li>
-                  {statItems[2]?.value || 0} reports generated — review summaries for at-risk
-                  patients.
+                <li className="flex items-start gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  <span>
+                    {statItems[2]?.value || 0} reports generated — review summaries for at-risk
+                    patients.
+                  </span>
                 </li>
-                <li>
-                  {analytics?.bannedPatients || 0} patients currently banned — confirm compliance if
-                  lifting restrictions.
+                <li className="flex items-start gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-amber-500" />
+                  <span>
+                    {analytics?.bannedPatients || 0} patients currently banned — confirm compliance if
+                    lifting restrictions.
+                  </span>
                 </li>
-                <li>
-                  Keep doctors directory up to date to improve AI recommendations.
+                <li className="flex items-start gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-sky-500" />
+                  <span>Keep doctors directory up to date to improve AI recommendations.</span>
                 </li>
               </ul>
             </Card>
-            <Card>
+            <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900">Next actions</h3>
               <div className="mt-4 space-y-3 text-sm text-slate-600">
                 <p>• Update branding and assistant tone to reflect current campaigns.</p>
@@ -182,8 +200,8 @@ export default function HospitalDashboardPage() {
                 <p>• Monitor AI quota, consider upgrade when usage stays above 80%.</p>
               </div>
             </Card>
-          </div>
-        </>
+          </section>
+        </div>
       )}
     </HospitalAdminLayout>
   );

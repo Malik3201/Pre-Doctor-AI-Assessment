@@ -145,6 +145,19 @@ export default function HospitalSettingsPage() {
       .replace('{{tone}}', form.assistantTone);
   }, [form.assistantIntroTemplate, form.assistantName, form.assistantTone]);
 
+  const registrationUrl =
+    typeof window !== 'undefined' ? `${window.location.origin}/auth/patient/register` : '';
+
+  const handleCopyRegistration = async () => {
+    if (!registrationUrl) return;
+    try {
+      await navigator.clipboard.writeText(registrationUrl);
+      showToast({ title: 'Registration link copied', variant: 'success' });
+    } catch {
+      showToast({ title: 'Unable to copy link', variant: 'error' });
+    }
+  };
+
   return (
     <HospitalAdminLayout
       title="Brand & Assistant"
@@ -179,14 +192,14 @@ export default function HospitalSettingsPage() {
       )}
 
       {isLoading ? (
-        <div className="flex min-h-[320px] items-center justify-center">
+        <div className="flex min-h-[320px] items-center justify-center rounded-3xl border border-slate-200 bg-white">
           <Spinner className="h-8 w-8 border-slate-300" />
         </div>
       ) : (
         <form id={SETTINGS_FORM_ID} className="space-y-8" onSubmit={handleSubmit}>
-          <Card className="space-y-6">
+          <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="rounded-full bg-blue-50 p-3 text-blue-600">
+              <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-500">
                 <Palette className="h-5 w-5" />
               </div>
               <div>
@@ -246,8 +259,8 @@ export default function HospitalSettingsPage() {
             </div>
           </Card>
 
-          <Card className="space-y-6">
-            <div>
+          <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
+            <div className="mb-6">
               <h3 className="text-lg font-semibold text-slate-900">Assistant behavior</h3>
               <p className="text-sm text-slate-500">
                 Shape how the AI greets and guides patients throughout their pre-check process.
@@ -349,15 +362,32 @@ export default function HospitalSettingsPage() {
             </div>
           </Card>
 
-          <Card className="space-y-4">
+          <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-slate-900">Assistant preview</h3>
-            <p className="text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500">
               Patients will see a greeting similar to this before they start describing symptoms.
             </p>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-700">
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-700">
               {assistantPreview}
             </div>
-            <Badge variant="neutral">Language: {form.assistantLanguage}</Badge>
+            <div className="mt-4">
+              <Badge variant="neutral">Language: {form.assistantLanguage}</Badge>
+            </div>
+          </Card>
+
+          <Card className="rounded-3xl border border-slate-200 p-6 shadow-sm">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-900">Patient registration link</h3>
+              <p className="mt-2 text-sm text-slate-500">
+                Share this link so patients can sign up directly under this hospital's portal.
+              </p>
+            </div>
+            <div className="mt-4 flex flex-col gap-3 md:flex-row">
+              <Input readOnly value={registrationUrl} />
+              <Button type="button" variant="outline" onClick={handleCopyRegistration}>
+                Copy link
+              </Button>
+            </div>
           </Card>
         </form>
       )}

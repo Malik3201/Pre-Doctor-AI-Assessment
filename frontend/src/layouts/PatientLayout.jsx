@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LogOut } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import apiClient from '../api/apiClient';
 import Spinner from '../components/ui/Spinner';
-import ErrorBanner from '../components/shared/ErrorBanner';
+import { PatientBrandingProvider } from '../context/PatientBrandingContext';
 
 export default function PatientLayout({ title, subtitle, actions, children }) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [branding, setBranding] = useState({ hospital: null, isLoading: true, error: '' });
 
   useEffect(() => {
@@ -38,35 +41,36 @@ export default function PatientLayout({ title, subtitle, actions, children }) {
     return { primary, secondary };
   }, [branding.hospital]);
 
+  const resolvedHospitalName =
+    branding.hospital?.name ||
+    branding.hospital?.settings?.hospitalName ||
+    branding.hospital?.displayName ||
+    '';
+  const hospitalName = resolvedHospitalName || (branding.isLoading ? '' : 'Your Hospital');
+
+  const assistantName =
+    branding.hospital?.settings?.assistantName ||
+    branding.hospital?.assistantName ||
+    'AI assistant';
+
   const logo = branding.hospital?.logo;
-  const hospitalName = branding.hospital?.name || 'Your Hospital';
+
+  const isDashboard = location.pathname === '/app/dashboard';
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <PatientBrandingProvider value={{ hospitalName, assistantName, colors }}>
+      <div className="min-h-screen bg-slate-50">
       <header
         className="border-b bg-white px-6 py-4"
-        style={{ borderColor: `${colors.primary}1a` }}
+        style={{ borderColor: `${colors.primary}33`, boxShadow: `0 1px 0 ${colors.primary}22` }}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <div className="flex items-center gap-4">
-            {logo ? (
-              <img src={logo} alt={hospitalName} className="h-10 w-10 rounded-full object-cover" />
-            ) : (
-              <div
-                className="h-10 w-10 rounded-full"
-                style={{ backgroundColor: `${colors.primary}26` }}
-              />
-            )}
-            <div>
-              <p
-                className="text-xs uppercase tracking-wide"
-                style={{ color: colors.primary }}
-              >
-                {hospitalName}
-              </p>
-              <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
-              {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
-            </div>
+          <div>
+            <p className="text-xs font-semibold tracking-wide" style={{ color: colors.primary }}>
+              {hospitalName}
+            </p>
+            <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
+            {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
@@ -75,8 +79,19 @@ export default function PatientLayout({ title, subtitle, actions, children }) {
             </div>
             <button
               type="button"
-              onClick={logout}
-              className="inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+              onClick={() => logout()}
+              className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition"
+              style={{
+                border: `1px solid ${colors.primary}33`,
+                color: colors.primary,
+                backgroundColor: 'white',
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = `${colors.primary}0d`;
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = 'white';
+              }}
             >
               <LogOut className="mr-1 h-4 w-4" />
               Logout
@@ -85,12 +100,6 @@ export default function PatientLayout({ title, subtitle, actions, children }) {
         </div>
       </header>
 
-      {branding.error && (
-        <div className="mx-auto max-w-4xl px-6 pt-4">
-          <ErrorBanner message={branding.error} />
-        </div>
-      )}
-
       <main className="mx-auto max-w-4xl px-6 py-8">
         {branding.isLoading ? (
           <div className="flex min-h-[300px] items-center justify-center">
@@ -98,12 +107,22 @@ export default function PatientLayout({ title, subtitle, actions, children }) {
           </div>
         ) : (
           <>
+            {!isDashboard && (
+              <button
+                type="button"
+                onClick={() => navigate('/app/dashboard')}
+                className="mb-6 text-sm font-medium text-slate-600 transition hover:text-slate-900"
+              >
+                &larr; Back to dashboard
+              </button>
+            )}
             {actions && <div className="mb-6 flex items-center justify-end">{actions}</div>}
             {children}
           </>
         )}
       </main>
-    </div>
+      </div>
+    </PatientBrandingProvider>
   );
 }
 
