@@ -9,9 +9,10 @@ export default defineConfig({
     host: true, // taake localhost + alshifa.localhost dono pe dev server chale
     proxy: {
       "/api": {
-        // target: 'http://localhost:5000',
-        target: "https://pre-doctor-ai-assessment.vercel.app/",
-        changeOrigin: false, // host header preserve rahe (multi-tenant ke liye better)
+        target: "http://localhost:5000",
+        // target: "https://pre-doctor-ai-assessment.vercel.app/",
+        changeOrigin: false, // Keep original host header for tenant detection
+        secure: false, // We're using http in development
       },
     },
   },
