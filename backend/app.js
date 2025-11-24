@@ -23,18 +23,23 @@ app.use(
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      
-      const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
-      
+
+      const allowedOrigins = [
+        process.env.FRONTEND_URL,
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://predoctorai.netlify.app",
+      ];
+
       // Allow localhost and any subdomain.localhost
       if (
         origin === allowedOrigin ||
         origin.match(/^http:\/\/[a-z0-9-]+\.localhost:\d+$/) ||
-        origin === 'http://localhost:5173'
+        origin === "http://localhost:5173"
       ) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: false, // tumhare axios me withCredentials: false hai, so ok
