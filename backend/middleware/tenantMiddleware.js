@@ -1,6 +1,6 @@
 import Hospital from '../models/Hospital.js';
 
-const RESERVED_SUBDOMAINS = new Set(['www', 'api']);
+const RESERVED_SUBDOMAINS = new Set(['www', 'api']); // 'api' is used by Vercel/production
 
 const extractSubdomain = (host = '') => {
   const [hostname] = host.split(':'); // remove port if present
@@ -26,8 +26,15 @@ export const tenantResolver = async (req, res, next) => {
     const host = req.headers.host || '';
     let subdomain = null;
 
-    // Method 1: Extract from Host header (works for local development with proxy)
-    if (host) {
+    // Method 1: Check custom header FIRST (works when calling Vercel/production backend)
+    // Frontend sends X-Tenant-Subdomain header extracted from window.location
+    if (req.headers['x-tenant-subdomain']) {
+      subdomain = req.headers['x-tenant-subdomain'];
+      console.log('✅ Subdomain from X-Tenant-Subdomain header:', subdomain);
+    }
+
+    // Method 2: Extract from Host header as fallback (works for local development with proxy)
+    if (!subdomain && host) {
       const [hostname] = host.split(':'); // remove port
       const parts = hostname.split('.');
 
@@ -35,17 +42,10 @@ export const tenantResolver = async (req, res, next) => {
       if (parts.length === 2 && parts[1] === 'localhost' && parts[0] !== 'www') {
         subdomain = parts[0];
       }
-      // PRODUCTION case: alshifa.yourdomain.com
-      else if (parts.length >= 3 && parts[0] !== 'www') {
+      // PRODUCTION case: alshifa.yourdomain.com (but skip reserved like 'api')
+      else if (parts.length >= 3 && parts[0] !== 'www' && !RESERVED_SUBDOMAINS.has(parts[0])) {
         subdomain = parts[0];
       }
-    }
-
-    // Method 2: Check custom header (works when calling Vercel/production backend directly)
-    // Frontend sends X-Tenant-Subdomain header extracted from window.location
-    if (!subdomain && req.headers['x-tenant-subdomain']) {
-      subdomain = req.headers['x-tenant-subdomain'];
-      console.log('✅ Subdomain from X-Tenant-Subdomain header:', subdomain);
     }
 
     console.log('🔍 Tenant detection:', {
