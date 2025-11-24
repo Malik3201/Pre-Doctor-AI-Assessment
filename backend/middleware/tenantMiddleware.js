@@ -23,28 +23,28 @@ const extractSubdomain = (host = '') => {
 
 export const tenantResolver = async (req, res, next) => {
   try {
-    const host = req.headers.host || ''; // e.g. "alshifa.localhost:5000"
-    if (!host) {
-      req.subdomain = null;
-      req.hospital = null;
-      return next();
-    }
-
-    // port hatao
-    const [hostname] = host.split(':'); // "alshifa.localhost"
-
-    // hostname ko dot pe split karo
-    const parts = hostname.split('.'); // ["alshifa", "localhost"] ya ["alshifa","yourdomain","com"]
-
+    const host = req.headers.host || '';
     let subdomain = null;
 
-    // LOCALHOST case: alshifa.localhost
-    if (parts.length === 2 && parts[1] === 'localhost' && parts[0] !== 'www') {
-      subdomain = parts[0]; // "alshifa"
+    // Method 1: Extract from Host header (works for local development with proxy)
+    if (host) {
+      const [hostname] = host.split(':'); // remove port
+      const parts = hostname.split('.');
+
+      // LOCALHOST case: alshifa.localhost
+      if (parts.length === 2 && parts[1] === 'localhost' && parts[0] !== 'www') {
+        subdomain = parts[0];
+      }
+      // PRODUCTION case: alshifa.yourdomain.com
+      else if (parts.length >= 3 && parts[0] !== 'www') {
+        subdomain = parts[0];
+      }
     }
-    // PRODUCTION case: alshifa.yourdomain.com
-    else if (parts.length >= 3 && parts[0] !== 'www') {
-      subdomain = parts[0]; // "alshifa"
+
+    // Method 2: Check custom header (works when calling Vercel/production backend directly)
+    // Frontend sends X-Tenant-Subdomain header extracted from window.location
+    if (!subdomain && req.headers['x-tenant-subdomain']) {
+      subdomain = req.headers['x-tenant-subdomain'];
     }
 
     req.subdomain = subdomain || null;
