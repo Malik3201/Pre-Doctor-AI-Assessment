@@ -35,6 +35,9 @@ apiClient.interceptors.request.use((config) => {
   const subdomain = extractSubdomain();
   if (subdomain) {
     config.headers['X-Tenant-Subdomain'] = subdomain;
+    console.log('✅ Sending X-Tenant-Subdomain header:', subdomain);
+  } else {
+    console.log('⚠️ No subdomain detected. Current hostname:', window.location.hostname);
   }
   
   return config;

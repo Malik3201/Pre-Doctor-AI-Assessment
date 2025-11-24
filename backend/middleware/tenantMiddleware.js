@@ -45,13 +45,22 @@ export const tenantResolver = async (req, res, next) => {
     // Frontend sends X-Tenant-Subdomain header extracted from window.location
     if (!subdomain && req.headers['x-tenant-subdomain']) {
       subdomain = req.headers['x-tenant-subdomain'];
+      console.log('✅ Subdomain from X-Tenant-Subdomain header:', subdomain);
     }
+
+    console.log('🔍 Tenant detection:', {
+      host: host,
+      subdomain: subdomain,
+      customHeader: req.headers['x-tenant-subdomain'],
+      method: subdomain ? (req.headers['x-tenant-subdomain'] ? 'custom-header' : 'host-header') : 'none'
+    });
 
     req.subdomain = subdomain || null;
     req.hospital = null;
 
     // root domain (no subdomain) -> super admin / public context
     if (!subdomain) {
+      console.log('⚠️ No subdomain detected, continuing without hospital context');
       return next();
     }
 
