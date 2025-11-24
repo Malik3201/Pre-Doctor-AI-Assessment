@@ -18,33 +18,41 @@ await connectDB();
 
 // Core middlewares
 // Allow localhost and subdomain.localhost for multi-tenant development
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
+// Core middlewares
 
-      const allowedOrigins = [
-        process.env.FRONTEND_URL,
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "https://predoctorai.netlify.app",
-      ];
+const allowedOrigins = [
+  process.env.FRONTEND_URL, // https://predoctorai.online
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://predoctorai.netlify.app", // optional, agar kahin use ho raha ho
+];
 
-      // Allow localhost and any subdomain.localhost
-      if (
-        origin === allowedOrigin ||
-        origin.match(/^http:\/\/[a-z0-9-]+\.localhost:\d+$/) ||
-        origin === "http://localhost:5173"
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: false, // tumhare axios me withCredentials: false hai, so ok
-  })
-);
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, Postman etc.)
+    if (!origin) return callback(null, true);
+
+    // Explicit allowed origins
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Allow ALL https subdomains of predoctorai.online
+    // e.g. https://dhq.predoctorai.online, https://alshifa.predoctorai.online
+    const subdomainPattern = /^https:\/\/[a-z0-9-]+\.predoctorai\.online$/i;
+    if (subdomainPattern.test(origin)) {
+      return callback(null, true);
+    }
+
+    // Baaki sab block
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: false, // tum axios me withCredentials use nahi kar rahe, is liye false hi theek hai
+};
+
+app.use(cors(corsOptions));
+// Preflight (OPTIONS) requests ke liye:
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 
