@@ -17,42 +17,35 @@ const app = express();
 await connectDB();
 
 // Core middlewares
-// Allow localhost and subdomain.localhost for multi-tenant development
-// Core middlewares
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL, // https://predoctorai.online
+  process.env.FRONTEND_URL,
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://predoctorai.netlify.app", // optional, agar kahin use ho raha ho
-];
+  "https://predoctorai.netlify.app",
+].filter(Boolean);
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, Postman etc.)
+  origin: (origin, callback) => {
+    // Postman / curl / server-to-server etc.
     if (!origin) return callback(null, true);
 
-    // Explicit allowed origins
-    if (allowedOrigins.includes(origin)) {
+    const isExplicitAllowed = allowedOrigins.includes(origin);
+
+    const isSubdomainAllowed =
+      /^https:\/\/[a-z0-9-]+\.predoctorai\.online$/i.test(origin);
+
+    if (isExplicitAllowed || isSubdomainAllowed) {
       return callback(null, true);
     }
 
-    // Allow ALL https subdomains of predoctorai.online
-    // e.g. https://dhq.predoctorai.online, https://alshifa.predoctorai.online
-    const subdomainPattern = /^https:\/\/[a-z0-9-]+\.predoctorai\.online$/i;
-    if (subdomainPattern.test(origin)) {
-      return callback(null, true);
-    }
-
-    // Baaki sab block
-    return callback(new Error("Not allowed by CORS"));
+    return callback(null, false);
   },
-  credentials: false, // tum axios me withCredentials use nahi kar rahe, is liye false hi theek hai
+  credentials: false,
 };
 
 app.use(cors(corsOptions));
-// Preflight (OPTIONS) requests ke liye:
-app.options("*", cors(corsOptions));
+app.options("*", cors(corsOptions)); // preflight
 
 app.use(express.json());
 
