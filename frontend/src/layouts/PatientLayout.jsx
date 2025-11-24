@@ -67,10 +67,12 @@ export default function PatientLayout({ title, subtitle, actions, children }) {
     branding.hospital?.assistantName ||
     'AI assistant';
 
+  const appointmentWhatsApp = branding.hospital?.settings?.appointmentWhatsApp || '';
+
   const logo = branding.hospital?.logo;
 
   return (
-    <PatientBrandingProvider value={{ hospitalName, assistantName, colors }}>
+    <PatientBrandingProvider value={{ hospitalName, assistantName, colors, appointmentWhatsApp }}>
       <div className="min-h-screen bg-slate-100 text-slate-900">
         {/* Sidebar Navigation */}
         <aside className="fixed inset-y-0 left-0 z-20 flex w-72 flex-col border-r border-slate-800 bg-slate-950 px-6 py-8 text-white">

@@ -26,6 +26,7 @@ const initialFormState = {
   assistantLanguage: 'English (US)',
   assistantIntroTemplate: '',
   extraStyleInstructions: '',
+  appointmentWhatsApp: '',
   enabledFeatures: {
     dietPlan: true,
     testSuggestions: true,
@@ -57,6 +58,7 @@ export default function HospitalSettingsPage() {
     assistantLanguage: hospital?.settings?.assistantLanguage || 'English (US)',
     assistantIntroTemplate: hospital?.settings?.assistantIntroTemplate || '',
     extraStyleInstructions: hospital?.settings?.extraStyleInstructions || '',
+    appointmentWhatsApp: hospital?.settings?.appointmentWhatsApp || '',
     enabledFeatures: {
       dietPlan: hospital?.settings?.enabledFeatures?.dietPlan ?? true,
       testSuggestions: hospital?.settings?.enabledFeatures?.testSuggestions ?? true,
@@ -114,6 +116,7 @@ export default function HospitalSettingsPage() {
           assistantLanguage: form.assistantLanguage,
           assistantIntroTemplate: form.assistantIntroTemplate,
           extraStyleInstructions: form.extraStyleInstructions,
+          appointmentWhatsApp: form.appointmentWhatsApp,
           enabledFeatures: { ...form.enabledFeatures },
         },
       };
@@ -256,6 +259,20 @@ export default function HospitalSettingsPage() {
                 rows={3}
                 placeholder="e.g., Call our emergency hotline at ..."
               />
+            </div>
+            <div>
+              <Label htmlFor="appointmentWhatsApp">Appointment WhatsApp Number</Label>
+              <Input
+                id="appointmentWhatsApp"
+                name="appointmentWhatsApp"
+                type="tel"
+                value={form.appointmentWhatsApp}
+                onChange={handleInputChange}
+                placeholder="+923001234567"
+              />
+              <p className="mt-2 text-xs text-slate-500">
+                Include country code (e.g., +92 for Pakistan). Patients can use this to quickly book appointments via WhatsApp.
+              </p>
             </div>
           </Card>
 

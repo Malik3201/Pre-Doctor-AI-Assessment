@@ -37,6 +37,7 @@ const hospitalSchema = new mongoose.Schema(
         default: "Hi, I'm {{assistantName}}, your AI health assistant for {{hospitalName}}.",
       },
       extraStyleInstructions: { type: String },
+      appointmentWhatsApp: { type: String, trim: true }, // WhatsApp number for appointments
     },
     subscriptionPlan: { type: mongoose.Schema.Types.ObjectId, ref: 'SubscriptionPlan' },
     planName: { type: String, default: 'free' },

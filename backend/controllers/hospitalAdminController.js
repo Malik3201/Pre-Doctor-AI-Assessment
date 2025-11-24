@@ -49,8 +49,6 @@ export const updateHospitalSettings = async (req, res, next) => {
     });
 
     if (req.body.settings) {
-      updates.settings = updates.settings || {};
-
       const settingsFields = [
         'emergencyText',
         'aiInstructions',
@@ -59,15 +57,18 @@ export const updateHospitalSettings = async (req, res, next) => {
         'assistantLanguage',
         'assistantIntroTemplate',
         'extraStyleInstructions',
+        'appointmentWhatsApp',
       ];
+      
+      // Use dot notation for nested settings to properly merge
       settingsFields.forEach((field) => {
         if (req.body.settings[field] !== undefined) {
-          updates.settings[field] = req.body.settings[field];
+          updates[`settings.${field}`] = req.body.settings[field];
         }
       });
 
       if (req.body.settings.enabledFeatures) {
-        updates.settings.enabledFeatures = {
+        updates['settings.enabledFeatures'] = {
           dietPlan:
             req.body.settings.enabledFeatures.dietPlan !== undefined
               ? req.body.settings.enabledFeatures.dietPlan
@@ -84,7 +85,7 @@ export const updateHospitalSettings = async (req, res, next) => {
       }
 
       if (Array.isArray(req.body.settings.faqs)) {
-        updates.settings.faqs = req.body.settings.faqs;
+        updates['settings.faqs'] = req.body.settings.faqs;
       }
     }
 
