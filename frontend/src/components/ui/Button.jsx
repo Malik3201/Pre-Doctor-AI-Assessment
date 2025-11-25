@@ -7,8 +7,9 @@ const baseStyles =
 const variants = {
   primary: 'bg-blue-600 text-white hover:bg-blue-500 focus-visible:outline-blue-600',
   outline:
-    'border border-slate-300 text-slate-900 hover:bg-slate-50 focus-visible:outline-slate-400 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800',
-  ghost: 'text-slate-900 hover:bg-slate-100 dark:text-white dark:hover:bg-slate-800',
+    'border border-slate-300 text-slate-900 hover:bg-slate-50 focus-visible:outline-slate-400',
+  ghost: 'text-slate-900 hover:bg-slate-100',
+  danger: 'bg-rose-600 text-white hover:bg-rose-500 focus-visible:outline-rose-600',
 };
 
 const sizes = {

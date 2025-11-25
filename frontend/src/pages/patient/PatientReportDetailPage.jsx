@@ -64,14 +64,39 @@ export default function PatientReportDetailPage() {
   const [error, setError] = useState('');
   const { showToast } = useToast();
   const { appointmentWhatsApp, hospitalName } = usePatientBranding();
+  const [whatsAppNumber, setWhatsAppNumber] = useState(appointmentWhatsApp || '');
 
   const openWhatsAppAppointment = (doctorName) => {
-    if (!appointmentWhatsApp) return;
-    const message = `Hi, I would like to book an appointment with ${doctorName} at ${hospitalName}. I have received an AI health assessment report.`;
-    const cleanNumber = appointmentWhatsApp.replace(/[^0-9]/g, '');
+    if (!whatsAppNumber) return;
+    const cleanNumber = whatsAppNumber.replace(/[^0-9]/g, '');
+    const doctorLabel = doctorName ? `with ${doctorName}` : '';
+    const facilityLabel = hospitalName ? ` at ${hospitalName}` : '';
+    const message = `Hi, I would like to book an appointment ${doctorLabel || facilityLabel || ''}. I have received an AI health assessment report.`;
     const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };
+
+  useEffect(() => {
+    setWhatsAppNumber(appointmentWhatsApp || '');
+  }, [appointmentWhatsApp]);
+
+  useEffect(() => {
+    if (appointmentWhatsApp) return;
+    let isMounted = true;
+    (async () => {
+      try {
+        const response = await apiClient.get('/hospital/settings');
+        if (isMounted) {
+          setWhatsAppNumber(response.data?.hospital?.settings?.appointmentWhatsApp || '');
+        }
+      } catch {
+        // silent fallback
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, [appointmentWhatsApp]);
 
   const fetchReport = useCallback(async () => {
     setIsLoading(true);
@@ -284,17 +309,58 @@ export default function PatientReportDetailPage() {
                     {report.recommendedDoctor.description}
                   </p>
                 )}
-                {appointmentWhatsApp && (
+                {whatsAppNumber && (
                   <Button
                     onClick={() => openWhatsAppAppointment(report.recommendedDoctor.name)}
-                    className="mt-4 w-full"
+                    className="mt-4 w-full bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-500 focus-visible:ring-emerald-500"
                   >
-                    <MessageCircle className="mr-2 h-4 w-4" />
+                    
+                    <MessageCircle className="mr-2 h-4 w-4 text-white" />
                     Make Quick Appointment
                   </Button>
                 )}
               </div>
             </Section>
+          )}
+
+          {whatsAppNumber && !report.recommendedDoctor && (
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">Need to speak with a doctor?</p>
+                  <p className="text-xs text-slate-600">
+                    Message the {hospitalName || 'care'} team on WhatsApp to secure a quick appointment.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => openWhatsAppAppointment()}
+                  className="w-full md:w-auto bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-500 focus-visible:ring-emerald-500"
+                >
+                  <MessageCircle className="mr-2 h-4 w-4 text-white" />
+                  Make Quick Appointment
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {appointmentWhatsApp && !report.recommendedDoctor && (
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">Need to speak with a doctor?</p>
+                  <p className="text-xs text-slate-600">
+                    Message the {hospitalName || 'care'} team on WhatsApp to secure a quick appointment.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => openWhatsAppAppointment()}
+                  className="w-full md:w-auto"
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Make Quick Appointment
+                </Button>
+              </div>
+            </div>
           )}
 
           {/* Disclaimer */}

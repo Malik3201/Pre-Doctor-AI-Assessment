@@ -323,17 +323,17 @@ export default function SuperHospitalsPage() {
             <p className="text-xs text-slate-500">Slice the directory by status or query.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Select
-              value={statusFilter}
-              onChange={(event) => handleStatusFilterChange(event.target.value)}
-              className="min-w-[160px]"
-            >
-              {statusOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
+              <Select
+                value={statusFilter}
+                onChange={(event) => handleStatusFilterChange(event.target.value)}
+                className="min-w-[160px]"
+              >
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
             <Input
               placeholder="Search by name or subdomain"
               value={searchTerm}
@@ -413,9 +413,8 @@ export default function SuperHospitalsPage() {
                           Plan
                         </Button>
                         <Button
-                          variant="ghost"
+                          variant="danger"
                           size="sm"
-                          className="text-rose-600"
                           onClick={() => openResetModal(hospital)}
                         >
                           <ShieldAlert className="mr-2 h-4 w-4" />
@@ -615,7 +614,7 @@ export default function SuperHospitalsPage() {
             <Button variant="ghost" onClick={() => setIsResetModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" form={RESET_FORM_ID} disabled={isResetSubmitting}>
+            <Button type="submit" form={RESET_FORM_ID} disabled={isResetSubmitting} variant="danger">
               {isResetSubmitting ? 'Resetting…' : 'Reset password'}
             </Button>
           </>

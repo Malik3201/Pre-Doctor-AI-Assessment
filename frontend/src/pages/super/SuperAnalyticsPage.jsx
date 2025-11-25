@@ -17,7 +17,7 @@ export default function SuperAnalyticsPage() {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">Realtime signals</h3>
-            <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-500">
               Aggregated metrics dashboard for platform-wide visibility and decision-making.
             </p>
           </div>

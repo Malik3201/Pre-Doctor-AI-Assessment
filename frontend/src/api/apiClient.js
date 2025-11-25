@@ -47,7 +47,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error?.response?.status;
-    if (status === 401 && !error.config?.__isAuthRequest) {
+    if (status === 401 && !error.config?.__isAuthRequest && !error.config?.__isPublicRequest) {
       triggerAuthLogout({ message: 'Your session expired. Please log in again.' });
     }
     return Promise.reject(error);

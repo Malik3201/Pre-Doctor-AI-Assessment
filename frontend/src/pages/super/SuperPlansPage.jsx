@@ -276,37 +276,37 @@ export default function SuperPlansPage() {
               key={plan._id}
               className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
                   <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-500">
-                    <Layers className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold text-slate-900">{plan.name}</h4>
+                      <Layers className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-slate-900">{plan.name}</h4>
                     <p className="text-xs uppercase tracking-wide text-slate-400">
                       {plan.isActive ? 'Available to tenants' : 'Inactive'}
                     </p>
+                    </div>
                   </div>
+                  <Badge variant={plan.isActive ? 'success' : 'warning'}>
+                    {plan.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
                 </div>
-                <Badge variant={plan.isActive ? 'success' : 'warning'}>
-                  {plan.isActive ? 'Active' : 'Inactive'}
-                </Badge>
-              </div>
               <p className="mt-4 text-sm text-slate-500">
                 {plan.description || 'No description provided'}
               </p>
               <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
                 <div className="rounded-2xl border border-slate-100 p-3">
-                  <p className="text-xs uppercase tracking-wide text-slate-500">Monthly price</p>
+                    <p className="text-xs uppercase tracking-wide text-slate-500">Monthly price</p>
                   <p className="mt-1 text-xl font-semibold text-slate-900">
-                    ${Number(plan.priceMonthly || 0).toFixed(2)}
-                  </p>
-                </div>
+                      ${Number(plan.priceMonthly || 0).toFixed(2)}
+                    </p>
+                  </div>
                 <div className="rounded-2xl border border-slate-100 p-3">
-                  <p className="text-xs uppercase tracking-wide text-slate-500">AI checks</p>
+                    <p className="text-xs uppercase tracking-wide text-slate-500">AI checks</p>
                   <p className="mt-1 text-xl font-semibold text-slate-900">
-                    {plan.maxAiChecksPerMonth?.toLocaleString() || '—'}
-                  </p>
+                      {plan.maxAiChecksPerMonth?.toLocaleString() || '—'}
+                    </p>
                 </div>
               </div>
               <div className="mt-6 flex flex-wrap gap-3">
@@ -315,9 +315,9 @@ export default function SuperPlansPage() {
                   Edit
                 </Button>
                 <Button
-                  variant="ghost"
+                  variant={plan.isActive ? 'danger' : 'outline'}
                   size="sm"
-                  className="text-slate-600"
+                  className={plan.isActive ? undefined : 'text-slate-600'}
                   onClick={() => handleDeactivate(plan)}
                 >
                   <ShieldOff className="mr-2 h-4 w-4" />

@@ -6,9 +6,11 @@ import Label from '../../components/ui/Label';
 import Button from '../../components/ui/Button';
 import Select from '../../components/ui/Select';
 import ErrorBanner from '../../components/shared/ErrorBanner';
+import Spinner from '../../components/ui/Spinner';
 import useTenant from '../../hooks/useTenant';
 import apiClient from '../../api/apiClient';
 import useAuth from '../../hooks/useAuth';
+import { useHospitalBranding } from '../../context/HospitalBrandingContext';
 
 const GENDER_OPTIONS = [
   { value: 'male', label: 'Male' },
@@ -21,6 +23,7 @@ export default function PatientRegisterPage() {
   const { subdomain, isRoot } = useTenant();
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { branding, loading: brandingLoading, error: brandingError } = useHospitalBranding();
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -39,7 +42,7 @@ export default function PatientRegisterPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!subdomain || isRoot) {
+    if (branding.mode === 'global' || !subdomain) {
       setStatus({
         error: 'Patient self-registration is only available on hospital-specific subdomains.',
         success: '',
@@ -80,11 +83,24 @@ export default function PatientRegisterPage() {
     }
   };
 
+  const layoutSubtitle =
+    branding.mode === 'hospital'
+      ? `Register as a patient of ${branding.name}`
+      : 'Available only when accessing through your hospital subdomain.';
+
+  if (brandingLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <Spinner className="h-8 w-8 text-blue-600" />
+      </div>
+    );
+  }
+
   return (
-    <AuthLayout
-      title="Patient Enrollment"
-      subtitle="Available only when accessing through your hospital subdomain."
-    >
+    <AuthLayout title="Patient Enrollment" subtitle={layoutSubtitle}>
+      {brandingError && (
+        <ErrorBanner message={brandingError} className="mb-4" />
+      )}
       {status.error && <ErrorBanner message={status.error} className="mb-4" />}
       {status.success && (
         <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
@@ -162,7 +178,12 @@ export default function PatientRegisterPage() {
             ))}
           </Select>
         </div>
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting || branding.mode === 'global' || !subdomain}
+          style={{ backgroundColor: branding.primaryColor || '#0F62FE' }}
+        >
           {isSubmitting ? 'Submitting...' : 'Register'}
         </Button>
       </form>

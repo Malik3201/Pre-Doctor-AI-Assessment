@@ -277,9 +277,8 @@ export default function HospitalDoctorsPage() {
                           Edit
                         </Button>
                         <Button
-                          variant="ghost"
+                          variant="danger"
                           size="sm"
-                          className="text-rose-600"
                           onClick={() => handleDelete(doctor)}
                         >
                           <Trash2 className="mr-1 h-4 w-4" />

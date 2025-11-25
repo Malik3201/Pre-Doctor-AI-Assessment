@@ -9,6 +9,7 @@ import superAdminRoutes from "./routes/superAdminRoutes.js";
 import hospitalAdminRoutes from "./routes/hospitalAdminRoutes.js";
 import patientRoutes from "./routes/patientRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import publicRoutes from "./routes/publicRoutes.js";
 import { tenantResolver } from "./middleware/tenantMiddleware.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import connectDB from "./config/db.js";
@@ -36,6 +37,7 @@ app.get("/api/health", (req, res) => {
 
 // Route mounting
 app.use("/api/auth", authRoutes);
+app.use("/api/public", publicRoutes);
 app.use("/api/super", superAdminRoutes);
 app.use("/api/hospital", hospitalAdminRoutes);
 app.use("/api/patient", patientRoutes);

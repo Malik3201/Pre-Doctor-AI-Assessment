@@ -9,7 +9,7 @@ export default function StatCard({ label, value, icon: Icon, change, changeLabel
         {Icon && <Icon className="h-4 w-4 text-slate-400" />}
       </div>
       <div className="flex items-end justify-between">
-        <span className="text-3xl font-semibold text-slate-900 dark:text-white">{value}</span>
+        <span className="text-3xl font-semibold text-slate-900">{value}</span>
         {change && (
           <span
             className={cn(

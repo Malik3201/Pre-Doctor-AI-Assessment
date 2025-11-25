@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import LoginPage from './pages/auth/LoginPage';
+import SuperAdminLoginPage from './pages/auth/SuperAdminLoginPage';
 import PatientRegisterPage from './pages/auth/PatientRegisterPage';
 import SuperDashboardPage from './pages/super/SuperDashboardPage';
 import SuperHospitalsPage from './pages/super/SuperHospitalsPage';
@@ -26,6 +27,7 @@ function App() {
       <Route path="/" element={<LandingPage />} />
 
       <Route path="/auth/login" element={<LoginPage />} />
+      <Route path="/secret/super-admin" element={<SuperAdminLoginPage />} />
       <Route path="/auth/patient/register" element={<PatientRegisterPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 

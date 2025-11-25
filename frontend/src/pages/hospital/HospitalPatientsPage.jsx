@@ -183,26 +183,26 @@ export default function HospitalPatientsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={patient.status === 'banned' ? 'text-emerald-600' : 'text-rose-600'}
-                          onClick={() =>
-                            handleStatusToggle(patient, patient.status === 'banned' ? 'active' : 'banned')
-                          }
-                        >
-                          {patient.status === 'banned' ? (
-                            <>
-                              <CheckCircle2 className="mr-1 h-4 w-4" />
-                              Reinstate
-                            </>
-                          ) : (
-                            <>
-                              <Ban className="mr-1 h-4 w-4" />
-                              Ban
-                            </>
-                          )}
-                        </Button>
+                        {patient.status === 'banned' ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 focus-visible:ring-emerald-500"
+                            onClick={() => handleStatusToggle(patient, 'active')}
+                          >
+                            <CheckCircle2 className="mr-1 h-4 w-4" />
+                            Reinstate
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleStatusToggle(patient, 'banned')}
+                          >
+                            <Ban className="mr-1 h-4 w-4" />
+                            Ban
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>

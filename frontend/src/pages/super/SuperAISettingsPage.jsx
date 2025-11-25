@@ -106,17 +106,17 @@ export default function SuperAISettingsPage() {
       ) : (
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
           <Card className="space-y-8 rounded-3xl border border-slate-200 p-6 shadow-sm">
-            <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-500">
-                <Brain className="h-5 w-5" />
-              </div>
-              <div>
+            <Brain className="h-5 w-5" />
+          </div>
+          <div>
                 <h3 className="text-lg font-semibold text-slate-900">Provider & models</h3>
-                <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500">
                   Hospitals inherit this configuration. Updates roll out instantly across tenants.
-                </p>
-              </div>
-            </div>
+            </p>
+          </div>
+        </div>
 
             <form id={SETTINGS_FORM_ID} className="space-y-8" onSubmit={handleSubmit}>
               <section>
@@ -124,31 +124,31 @@ export default function SuperAISettingsPage() {
                   Provider selection
                 </p>
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
-                  {providerOptions.map((provider) => (
-                    <label
-                      key={provider.value}
-                      className={`cursor-pointer rounded-2xl border p-4 transition ${
-                        form.aiProvider === provider.value
+                {providerOptions.map((provider) => (
+                  <label
+                    key={provider.value}
+                    className={`cursor-pointer rounded-2xl border p-4 transition ${
+                      form.aiProvider === provider.value
                           ? 'border-emerald-500 bg-emerald-50'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
+                        : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
                       <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="font-semibold text-slate-900">{provider.label}</p>
-                          <p className="text-xs text-slate-500">{provider.description}</p>
-                        </div>
-                        <input
-                          type="radio"
-                          name="aiProvider"
-                          value={provider.value}
-                          checked={form.aiProvider === provider.value}
-                          onChange={handleChange}
-                        />
+                      <div>
+                        <p className="font-semibold text-slate-900">{provider.label}</p>
+                        <p className="text-xs text-slate-500">{provider.description}</p>
                       </div>
-                    </label>
-                  ))}
-                </div>
+                      <input
+                        type="radio"
+                        name="aiProvider"
+                        value={provider.value}
+                        checked={form.aiProvider === provider.value}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </label>
+                ))}
+              </div>
               </section>
 
               <section className="grid gap-6 md:grid-cols-2">
@@ -183,11 +183,11 @@ export default function SuperAISettingsPage() {
               </section>
 
               <div className="flex items-center justify-end gap-3">
-                <Button type="submit" form={SETTINGS_FORM_ID} disabled={isSaving}>
-                  <Save className="mr-2 h-4 w-4" />
-                  {isSaving ? 'Saving…' : 'Save changes'}
-                </Button>
-              </div>
+              <Button type="submit" form={SETTINGS_FORM_ID} disabled={isSaving}>
+                <Save className="mr-2 h-4 w-4" />
+                {isSaving ? 'Saving…' : 'Save changes'}
+              </Button>
+            </div>
             </form>
           </Card>
 

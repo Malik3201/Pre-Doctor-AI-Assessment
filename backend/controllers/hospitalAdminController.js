@@ -58,6 +58,9 @@ export const updateHospitalSettings = async (req, res, next) => {
         'assistantIntroTemplate',
         'extraStyleInstructions',
         'appointmentWhatsApp',
+        'tagline',
+        'city',
+        'country',
       ];
       
       // Use dot notation for nested settings to properly merge

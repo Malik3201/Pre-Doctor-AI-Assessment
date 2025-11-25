@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children, requiredRole, requireSubdomai
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <Spinner className="h-8 w-8 border-slate-300" />
       </div>
     );

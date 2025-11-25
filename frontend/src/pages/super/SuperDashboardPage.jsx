@@ -174,7 +174,7 @@ export default function SuperDashboardPage() {
                     </div>
                   );
                 })}
-              </div>
+          </div>
             </Card>
 
             <Card className="space-y-5">
@@ -267,7 +267,7 @@ export default function SuperDashboardPage() {
               </ul>
             </Card>
           </section>
-        </div>
+          </div>
       )}
     </SuperAdminLayout>
   );

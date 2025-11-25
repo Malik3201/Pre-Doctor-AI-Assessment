@@ -6,10 +6,10 @@ export default function Topbar({ title, subtitle, actions }) {
   const { user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200/60 bg-white/80 px-6 py-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
+    <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200/60 bg-white/80 px-6 py-4 backdrop-blur">
       <div>
         <p className="text-xs uppercase tracking-wide text-slate-400">Overview</p>
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h2>
+        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
         {subtitle && <p className="text-xs text-slate-500">{subtitle}</p>}
       </div>
 
@@ -30,7 +30,7 @@ export default function Topbar({ title, subtitle, actions }) {
           <Bell className="h-4 w-4" />
         </button>
         <div className="text-left">
-          <p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.name}</p>
+          <p className="text-sm font-semibold text-slate-900">{user?.name}</p>
           <p className="text-xs text-slate-500">{user?.role}</p>
         </div>
         <Button variant="ghost" size="sm" onClick={logout} className="text-slate-500">

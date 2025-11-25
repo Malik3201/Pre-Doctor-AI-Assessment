@@ -38,6 +38,9 @@ const hospitalSchema = new mongoose.Schema(
       },
       extraStyleInstructions: { type: String },
       appointmentWhatsApp: { type: String, trim: true }, // WhatsApp number for appointments
+      tagline: { type: String, trim: true },
+      city: { type: String, trim: true },
+      country: { type: String, trim: true },
     },
     subscriptionPlan: { type: mongoose.Schema.Types.ObjectId, ref: 'SubscriptionPlan' },
     planName: { type: String, default: 'free' },
