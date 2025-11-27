@@ -27,42 +27,43 @@ import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
+     <h1 style={{ padding: 40 }}>Landing working ✅</h1>;
+    // <Routes>
+    //   <Route path="/" element={<LandingPage />} />
 
-      <Route path="/auth/login" element={<LoginPage />} />
-      <Route path="/secret/super-admin" element={<SuperAdminLoginPage />} />
-      <Route path="/auth/patient/register" element={<PatientRegisterPage />} />
-      <Route path="/unauthorized" element={<UnauthorizedPage />} />
-      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-      <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
+    //   <Route path="/auth/login" element={<LoginPage />} />
+    //   <Route path="/secret/super-admin" element={<SuperAdminLoginPage />} />
+    //   <Route path="/auth/patient/register" element={<PatientRegisterPage />} />
+    //   <Route path="/unauthorized" element={<UnauthorizedPage />} />
+    //   <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+    //   <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
 
-      <Route element={<ProtectedRoute requiredRole="SUPER_ADMIN" />}>
-        <Route path="/super/dashboard" element={<SuperDashboardPage />} />
-        <Route path="/super/hospitals" element={<SuperHospitalsPage />} />
-        <Route path="/super/plans" element={<SuperPlansPage />} />
-        <Route path="/super/ai-settings" element={<SuperAISettingsPage />} />
-        <Route path="/super/analytics" element={<SuperAnalyticsPage />} />
-      </Route>
+    //   <Route element={<ProtectedRoute requiredRole="SUPER_ADMIN" />}>
+    //     <Route path="/super/dashboard" element={<SuperDashboardPage />} />
+    //     <Route path="/super/hospitals" element={<SuperHospitalsPage />} />
+    //     <Route path="/super/plans" element={<SuperPlansPage />} />
+    //     <Route path="/super/ai-settings" element={<SuperAISettingsPage />} />
+    //     <Route path="/super/analytics" element={<SuperAnalyticsPage />} />
+    //   </Route>
 
-      <Route element={<ProtectedRoute requiredRole="HOSPITAL_ADMIN" requireSubdomain />}>
-        <Route path="/hospital/dashboard" element={<HospitalDashboardPage />} />
-        <Route path="/hospital/settings" element={<HospitalSettingsPage />} />
-        <Route path="/hospital/doctors" element={<HospitalDoctorsPage />} />
-        <Route path="/hospital/patients" element={<HospitalPatientsPage />} />
-        <Route path="/hospital/analytics" element={<HospitalAnalyticsPage />} />
-      </Route>
+    //   <Route element={<ProtectedRoute requiredRole="HOSPITAL_ADMIN" requireSubdomain />}>
+    //     <Route path="/hospital/dashboard" element={<HospitalDashboardPage />} />
+    //     <Route path="/hospital/settings" element={<HospitalSettingsPage />} />
+    //     <Route path="/hospital/doctors" element={<HospitalDoctorsPage />} />
+    //     <Route path="/hospital/patients" element={<HospitalPatientsPage />} />
+    //     <Route path="/hospital/analytics" element={<HospitalAnalyticsPage />} />
+    //   </Route>
 
-      <Route element={<ProtectedRoute requiredRole="PATIENT" requireSubdomain />}>
-        <Route path="/app/dashboard" element={<PatientDashboardPage />} />
-        <Route path="/app/reports" element={<PatientReportsPage />} />
-        <Route path="/app/reports/:id" element={<PatientReportDetailPage />} />
-        <Route path="/app/checkup/new" element={<PatientNewCheckupPage />} />
-        <Route path="/app/settings" element={<PatientSettingsPage />} />
-      </Route>
+    //   <Route element={<ProtectedRoute requiredRole="PATIENT" requireSubdomain />}>
+    //     <Route path="/app/dashboard" element={<PatientDashboardPage />} />
+    //     <Route path="/app/reports" element={<PatientReportsPage />} />
+    //     <Route path="/app/reports/:id" element={<PatientReportDetailPage />} />
+    //     <Route path="/app/checkup/new" element={<PatientNewCheckupPage />} />
+    //     <Route path="/app/settings" element={<PatientSettingsPage />} />
+    //   </Route>
 
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+    //   <Route path="*" element={<NotFoundPage />} />
+    // </Routes>
   );
 }
 
