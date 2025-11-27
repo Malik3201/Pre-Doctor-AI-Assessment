@@ -42,7 +42,11 @@ const reportSchema = new mongoose.Schema(
     whatToAvoid: [{ type: String, trim: true }],
     homeCare: [{ type: String, trim: true }],
 
+    // Recommended doctor reference plus snapshot fields to keep reports stable over time
     recommendedDoctor: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' },
+    recommendedDoctorName: { type: String, trim: true },
+    recommendedDoctorQualification: { type: String, trim: true },
+    recommendedDoctorSpecialization: { type: String, trim: true },
     pdfUrl: { type: String, trim: true },
 
     source: { type: String, enum: ['AI', 'MANUAL'], default: 'AI' },

@@ -6,6 +6,7 @@ import {
   LogOut,
   Heart,
   User,
+  Settings,
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
@@ -19,6 +20,7 @@ const navLinks = [
   { href: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/app/checkup/new', label: 'New Checkup', icon: Plus },
   { href: '/app/reports', label: 'My Reports', icon: FileText },
+  { href: '/app/settings', label: 'Settings', icon: Settings },
 ];
 
 export default function PatientLayout({ title, subtitle, actions, children }) {

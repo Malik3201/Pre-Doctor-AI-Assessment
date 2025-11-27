@@ -115,38 +115,38 @@ export default function LandingPage() {
       {/* Navigation Bar */}
       <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-7 w-7 text-teal-600" />
+          <div className="flex items-center gap-3">
+            <img src="/predocAi-logo.png" alt="Pre-Doctor AI" className="h-8 w-8 rounded-md object-cover" />
             <span className="text-xl font-bold text-slate-900">Pre-Doctor AI</span>
           </div>
           <div className="hidden items-center gap-8 md:flex">
             <button
               onClick={() => scrollToSection('product')}
-              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors"
+              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors cursor-pointer"
             >
               Product
             </button>
             <button
               onClick={() => scrollToSection('how-it-works')}
-              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors"
+              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors cursor-pointer"
             >
               How it works
             </button>
             <button
               onClick={() => scrollToSection('for-hospitals')}
-              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors"
+              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors cursor-pointer"
             >
               For hospitals
             </button>
             <button
               onClick={() => scrollToSection('pricing')}
-              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors"
+              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors cursor-pointer"
             >
               Pricing
             </button>
             <button
               onClick={() => scrollToSection('security')}
-              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors"
+              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors cursor-pointer"
             >
               Security
             </button>
@@ -154,13 +154,13 @@ export default function LandingPage() {
           <div className="flex items-center gap-4">
             <Link
               to="/auth/login"
-              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors"
+              className="text-sm font-medium text-slate-700 hover:text-teal-600 transition-colors cursor-pointer"
             >
               Login
             </Link>
             <Button
               onClick={() => scrollToSection('contact')}
-              className="bg-teal-600 hover:bg-teal-500 focus-visible:outline-teal-600"
+              className="bg-teal-600 hover:bg-teal-500 focus-visible:outline-teal-600 cursor-pointer"
             >
               Book a demo
             </Button>
@@ -203,7 +203,7 @@ export default function LandingPage() {
                 <Button
                   onClick={() => scrollToSection('contact')}
                   size="lg"
-                  className="bg-teal-600 hover:bg-teal-500 focus-visible:outline-teal-600"
+                  className="bg-teal-600 hover:bg-teal-500 focus-visible:outline-teal-600 cursor-pointer"
                 >
                   Book a live demo
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -212,52 +212,53 @@ export default function LandingPage() {
                   onClick={() => scrollToSection('sample-report')}
                   variant="outline"
                   size="lg"
-                  className="border-slate-600 text-white hover:bg-slate-700/50"
+                  className="border-slate-600 text-white hover:bg-slate-700/50 cursor-pointer"
                 >
                   View sample report
           </Button>
               </div>
             </div>
             <div className="relative">
-              <Card className="border-slate-700/50 bg-slate-800/50 backdrop-blur-sm">
+              <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-emerald-400/30 via-teal-500/20 to-transparent blur-2xl"></div>
+              <Card className="relative border-white/40 bg-white/95 p-8 shadow-2xl backdrop-blur">
                 <div className="mb-4 flex items-center justify-between border-b border-slate-700 pb-4">
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                       AI Pre-Assessment Report
                     </p>
-                    <p className="mt-1 text-sm text-slate-300">Patient: John D. • Age: 45</p>
+                    <p className="mt-1 text-sm text-slate-500">Patient: John D. • Age: 45</p>
                   </div>
-                  <div className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400">
+                  <div className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
                     Moderate Risk
                   </div>
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <p className="mb-2 text-xs font-medium text-slate-400">Chief Complaint</p>
-                    <p className="text-sm text-slate-200">Chest pain and shortness of breath</p>
+                    <p className="mb-2 text-xs font-medium text-slate-500">Chief Complaint</p>
+                    <p className="text-sm text-slate-800">Chest pain and shortness of breath</p>
                   </div>
                   <div>
-                    <p className="mb-2 text-xs font-medium text-slate-400">AI Summary</p>
-                    <p className="text-sm leading-relaxed text-slate-300">
+                    <p className="mb-2 text-xs font-medium text-slate-500">AI Summary</p>
+                    <p className="text-sm leading-relaxed text-slate-700">
                       Patient reports intermittent chest discomfort with exertion. History suggests
                       cardiovascular risk factors. Recommend ECG and cardiac markers.
                     </p>
                   </div>
                   <div>
-                    <p className="mb-2 text-xs font-medium text-slate-400">Suggested Conditions</p>
+                    <p className="mb-2 text-xs font-medium text-slate-500">Suggested Conditions</p>
                     <div className="flex flex-wrap gap-2">
-                      <span className="rounded-md bg-amber-500/20 px-2 py-1 text-xs text-amber-300">
+                      <span className="rounded-md bg-amber-100 px-2 py-1 text-xs text-amber-700">
                         Angina
                       </span>
-                      <span className="rounded-md bg-amber-500/20 px-2 py-1 text-xs text-amber-300">
+                      <span className="rounded-md bg-amber-100 px-2 py-1 text-xs text-amber-700">
                         Hypertension
                       </span>
                     </div>
                   </div>
-                  <div className="mt-6 rounded-lg border border-slate-700 bg-slate-900/50 p-4">
-                    <p className="mb-2 text-xs font-medium text-slate-400">Today's Pre-Assessed</p>
-                    <p className="text-2xl font-bold text-white">127</p>
-                    <p className="mt-1 text-xs text-slate-400">patients across all departments</p>
+                  <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <p className="mb-2 text-xs font-medium text-slate-500">Today's Pre-Assessed</p>
+                    <p className="text-3xl font-bold text-slate-900">127</p>
+                    <p className="mt-1 text-xs text-slate-500">patients across all departments</p>
                   </div>
                 </div>
               </Card>
@@ -608,7 +609,7 @@ export default function LandingPage() {
               </div>
               <p className="leading-relaxed text-slate-700">
                 All patient data is encrypted in transit (TLS) and at rest. We use secure cloud
-                infrastructure (MongoDB Atlas) with regular security audits, access logging, and
+                infrastructure with regular security audits, access logging, and
                 compliance monitoring. Role-based access control ensures only authorized staff can view
                 patient information.
               </p>
@@ -778,35 +779,45 @@ export default function LandingPage() {
               };
               return (
                 <Card
-                  key={idx}
-                  className={`relative ${plan.popular ? 'border-2 border-emerald-500 shadow-lg' : ''}`}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <span className="rounded-full bg-emerald-500 px-4 py-1 text-xs font-semibold text-white">
-                        Most Popular
-                      </span>
-                    </div>
-                  )}
-                  <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-slate-900">{plan.name}</h3>
-                    <p className="mt-1 text-sm text-slate-600">{plan.description}</p>
-                  </div>
-                  <ul className="mb-8 space-y-3">
-                    {plan.features.map((feature, fIdx) => (
-                      <li key={fIdx} className="flex items-start gap-2 text-sm text-slate-700">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    onClick={() => scrollToSection('contact')}
-                    className={`w-full ${colorClasses[plan.color]} hover:opacity-90`}
-                  >
-                    Talk to us for pricing
-            </Button>
-                </Card>
+  key={idx}
+  className={`relative flex h-full flex-col ${
+    plan.popular ? 'border-2 border-emerald-500 shadow-lg' : ''
+  }`}
+>
+  {plan.popular && (
+    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+      <span className="rounded-full bg-emerald-500 px-4 py-1 text-xs font-semibold text-white">
+        Most Popular
+      </span>
+    </div>
+  )}
+
+  {/* Wrap all content except button */}
+  <div className="flex flex-col flex-1">
+    <div className="mb-6">
+      <h3 className="text-2xl font-bold text-slate-900">{plan.name}</h3>
+      <p className="mt-1 text-sm text-slate-600">{plan.description}</p>
+    </div>
+
+    <ul className="space-y-3">
+      {plan.features.map((feature, fIdx) => (
+        <li key={fIdx} className="flex items-start gap-2 text-sm text-slate-700">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
+          <span>{feature}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  {/* Button forced to bottom via mt-6 */}
+  <Button
+    onClick={() => scrollToSection('contact')}
+    className={`mt-6 w-full ${colorClasses[plan.color]} hover:opacity-90 cursor-pointer`}
+  >
+    Talk to us for pricing
+  </Button>
+</Card>
+
               );
             })}
           </div>
@@ -922,11 +933,11 @@ export default function LandingPage() {
               Share a few details and we'll schedule a live demo with your team
             </p>
           </div>
-          <Card className="border-slate-700/50 bg-slate-800/50 backdrop-blur-sm">
+          <Card className="border-slate-200 bg-white shadow-xl">
             <form onSubmit={handleDemoSubmit} className="space-y-6">
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="hospitalName" className="text-slate-200">
+                  <Label htmlFor="hospitalName" className="text-slate-700">
                     Hospital Name *
                   </Label>
                   <Input
@@ -934,12 +945,12 @@ export default function LandingPage() {
                     required
                     value={demoForm.hospitalName}
                     onChange={(e) => setDemoForm({ ...demoForm, hospitalName: e.target.value })}
-                    className="border-slate-600 bg-slate-900/50 text-white placeholder:text-slate-500"
+                    className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-500"
                     placeholder="Metro General Hospital"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="contactName" className="text-slate-200">
+                  <Label htmlFor="contactName" className="text-slate-700">
                     Contact Person Name *
                   </Label>
                   <Input
@@ -947,14 +958,14 @@ export default function LandingPage() {
                     required
                     value={demoForm.contactName}
                     onChange={(e) => setDemoForm({ ...demoForm, contactName: e.target.value })}
-                    className="border-slate-600 bg-slate-900/50 text-white placeholder:text-slate-500"
+                    className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-500"
                     placeholder="Dr. Sarah Johnson"
                   />
                 </div>
               </div>
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="role" className="text-slate-200">
+                  <Label htmlFor="role" className="text-slate-700">
                     Role *
                   </Label>
                   <Select
@@ -962,7 +973,7 @@ export default function LandingPage() {
                     required
                     value={demoForm.role}
                     onChange={(e) => setDemoForm({ ...demoForm, role: e.target.value })}
-                    className="border-slate-600 bg-slate-900/50 text-white"
+                    className="border-slate-300 bg-white text-slate-900"
                   >
                     <option value="">Select role</option>
                     <option value="medical-director">Medical Director</option>
@@ -973,7 +984,7 @@ export default function LandingPage() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-slate-200">
+                  <Label htmlFor="phone" className="text-slate-700">
                     Phone (Optional)
                   </Label>
                   <Input
@@ -981,13 +992,13 @@ export default function LandingPage() {
                     type="tel"
                     value={demoForm.phone}
                     onChange={(e) => setDemoForm({ ...demoForm, phone: e.target.value })}
-                    className="border-slate-600 bg-slate-900/50 text-white placeholder:text-slate-500"
+                    className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-500"
                     placeholder="+1 (555) 123-4567"
                   />
                 </div>
               </div>
               <div>
-                <Label htmlFor="email" className="text-slate-200">
+                <Label htmlFor="email" className="text-slate-700">
                   Work Email *
                 </Label>
                 <Input
@@ -996,12 +1007,12 @@ export default function LandingPage() {
                   required
                   value={demoForm.email}
                   onChange={(e) => setDemoForm({ ...demoForm, email: e.target.value })}
-                  className="border-slate-600 bg-slate-900/50 text-white placeholder:text-slate-500"
+                  className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-500"
                   placeholder="sarah.johnson@hospital.com"
                 />
               </div>
               <div>
-                <Label htmlFor="message" className="text-slate-200">
+                <Label htmlFor="message" className="text-slate-700">
                   Message / Notes
                 </Label>
                 <textarea
@@ -1009,14 +1020,14 @@ export default function LandingPage() {
                   rows={4}
                   value={demoForm.message}
                   onChange={(e) => setDemoForm({ ...demoForm, message: e.target.value })}
-                  className="w-full rounded-md border border-slate-600 bg-slate-900/50 px-3 py-2 text-sm text-white shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-teal-500/20 placeholder:text-slate-500"
+                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 placeholder:text-slate-500"
                   placeholder="Tell us about your hospital's needs, current patient volume, or any specific questions..."
                 />
               </div>
               <Button
                 type="submit"
                 size="lg"
-                className="w-full bg-teal-600 hover:bg-teal-500 focus-visible:outline-teal-600"
+                className="w-full bg-teal-600 hover:bg-teal-500 focus-visible:outline-teal-600 cursor-pointer"
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 Request a demo
@@ -1048,7 +1059,7 @@ export default function LandingPage() {
                 <li>
                   <button
                     onClick={() => scrollToSection('product')}
-                    className="hover:text-teal-600 transition-colors"
+                    className="hover:text-teal-600 transition-colors cursor-pointer"
                   >
                     Product
                   </button>
@@ -1056,7 +1067,7 @@ export default function LandingPage() {
                 <li>
                   <button
                     onClick={() => scrollToSection('how-it-works')}
-                    className="hover:text-teal-600 transition-colors"
+                    className="hover:text-teal-600 transition-colors cursor-pointer"
                   >
                     How it works
                   </button>
@@ -1064,7 +1075,7 @@ export default function LandingPage() {
                 <li>
                   <button
                     onClick={() => scrollToSection('pricing')}
-                    className="hover:text-teal-600 transition-colors"
+                    className="hover:text-teal-600 transition-colors cursor-pointer"
                   >
                     Pricing
                   </button>
@@ -1072,7 +1083,7 @@ export default function LandingPage() {
                 <li>
                   <button
                     onClick={() => scrollToSection('security')}
-                    className="hover:text-teal-600 transition-colors"
+                    className="hover:text-teal-600 transition-colors cursor-pointer"
                   >
                     Security
                   </button>
@@ -1083,19 +1094,22 @@ export default function LandingPage() {
               <h4 className="mb-4 text-sm font-semibold text-slate-900">Legal</h4>
               <ul className="space-y-2 text-sm text-slate-600">
                 <li>
-                  <a href="#" className="hover:text-teal-600 transition-colors">
+                  <Link to="/privacy-policy" className="hover:text-teal-600 transition-colors cursor-pointer">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-teal-600 transition-colors">
-                    Terms of Service
-                  </a>
+                  <Link
+                    to="/terms-and-conditions"
+                    className="hover:text-teal-600 transition-colors cursor-pointer"
+                  >
+                    Terms &amp; Conditions
+                  </Link>
                 </li>
                 <li>
                   <button
                     onClick={() => scrollToSection('contact')}
-                    className="hover:text-teal-600 transition-colors"
+                    className="hover:text-teal-600 transition-colors cursor-pointer"
                   >
                     Contact
                   </button>

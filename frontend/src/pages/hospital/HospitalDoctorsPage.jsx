@@ -24,6 +24,7 @@ const statusOptions = [
 const initialFormState = {
   name: '',
   specialization: '',
+  qualification: '',
   experienceYears: '',
   expertiseTags: '',
   timings: '',
@@ -95,6 +96,7 @@ export default function HospitalDoctorsPage() {
     setFormState({
       name: doctor.name || '',
       specialization: doctor.specialization || '',
+      qualification: doctor.qualification || '',
       experienceYears: doctor.experienceYears ?? '',
       expertiseTags: (doctor.expertiseTags || []).join(', '),
       timings: doctor.timings || '',
@@ -328,6 +330,17 @@ export default function HospitalDoctorsPage() {
                 name="specialization"
                 value={formState.specialization}
                 onChange={handleFormChange}
+                required
+              />
+            </div>
+            <div className="md:col-span-2">
+              <Label htmlFor="doc-qualification">Qualification</Label>
+              <Input
+                id="doc-qualification"
+                name="qualification"
+                value={formState.qualification}
+                onChange={handleFormChange}
+                placeholder="e.g. MBBS, FCPS (Cardiology)"
                 required
               />
             </div>

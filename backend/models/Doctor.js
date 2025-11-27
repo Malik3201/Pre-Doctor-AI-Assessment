@@ -5,6 +5,7 @@ const doctorSchema = new mongoose.Schema(
     hospital: { type: mongoose.Schema.Types.ObjectId, ref: 'Hospital', required: true },
     name: { type: String, required: true, trim: true },
     specialization: { type: String, required: true, trim: true },
+    qualification: { type: String, trim: true, default: '' },
     experienceYears: { type: Number, default: 0 },
     expertiseTags: [{ type: String, trim: true }],
     timings: { type: String },

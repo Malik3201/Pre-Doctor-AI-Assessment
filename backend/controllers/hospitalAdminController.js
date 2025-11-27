@@ -109,17 +109,30 @@ export const createDoctor = async (req, res, next) => {
       return;
     }
 
-    const { name, specialization, experienceYears, expertiseTags, timings, description, status } =
-      req.body || {};
+    const {
+      name,
+      specialization,
+      qualification,
+      experienceYears,
+      expertiseTags,
+      timings,
+      description,
+      status,
+    } = req.body || {};
 
     if (!name || !specialization) {
       return res.status(400).json({ message: 'Name and specialization are required' });
+    }
+
+    if (!qualification || !qualification.trim()) {
+      return res.status(400).json({ message: 'Qualification is required' });
     }
 
     const doctor = await Doctor.create({
       hospital: req.hospital._id,
       name,
       specialization,
+      qualification: qualification?.trim(),
       experienceYears,
       expertiseTags,
       timings,
@@ -187,6 +200,7 @@ export const updateDoctor = async (req, res, next) => {
     const allowedFields = [
       'name',
       'specialization',
+      'qualification',
       'experienceYears',
       'expertiseTags',
       'timings',

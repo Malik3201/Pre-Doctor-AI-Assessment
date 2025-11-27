@@ -290,31 +290,67 @@ export default function PatientReportDetailPage() {
           )}
 
           {/* Recommended Doctor */}
-          {report.recommendedDoctor && (
+          {(report.recommendedDoctorName ||
+            report.recommendedDoctorQualification ||
+            report.recommendedDoctorSpecialization ||
+            report.recommendedDoctor) && (
             <Section title="Recommended Doctor" icon={Stethoscope} gradient="from-indigo-50 to-blue-50" iconColor="text-indigo-600">
               <div className="space-y-2">
-                <p className="text-lg font-bold text-slate-900">
-                  {report.recommendedDoctor.name}
-                </p>
-                <p className="text-sm font-medium text-slate-700">
-                  {report.recommendedDoctor.specialization || 'Specialist'}
-                </p>
-                {report.recommendedDoctor.timings && (
-                  <p className="text-sm text-slate-600">
-                    <span className="font-medium">Available:</span> {report.recommendedDoctor.timings}
+                {report.recommendedDoctorName ? (
+                  <div className="space-y-1">
+                    <p className="text-lg font-semibold text-slate-900">
+                      {report.recommendedDoctorName}
+                      {report.recommendedDoctorQualification && (
+                        <span className="font-normal text-slate-700">
+                          {', '}
+                          {report.recommendedDoctorQualification}
+                        </span>
+                      )}
+                    </p>
+                    {report.recommendedDoctorSpecialization && (
+                      <p className="text-sm text-slate-600">
+                        {report.recommendedDoctorSpecialization}
+                      </p>
+                    )}
+                  </div>
+                ) : report.recommendedDoctor ? (
+                  <div className="space-y-1">
+                    <p className="text-lg font-semibold text-slate-900">
+                      {report.recommendedDoctor.name}
+                    </p>
+                    {report.recommendedDoctor.specialization && (
+                      <p className="text-sm text-slate-600">
+                        {report.recommendedDoctor.specialization}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500">
+                    No specific doctor was recommended in this report.
                   </p>
                 )}
-                {report.recommendedDoctor.description && (
+
+                {report.recommendedDoctor?.timings && (
+                  <p className="text-sm text-slate-600">
+                    <span className="font-medium">Available:</span>{' '}
+                    {report.recommendedDoctor.timings}
+                  </p>
+                )}
+                {report.recommendedDoctor?.description && (
                   <p className="mt-2 text-sm text-slate-600">
                     {report.recommendedDoctor.description}
                   </p>
                 )}
+
                 {whatsAppNumber && (
                   <Button
-                    onClick={() => openWhatsAppAppointment(report.recommendedDoctor.name)}
+                    onClick={() =>
+                      openWhatsAppAppointment(
+                        report.recommendedDoctorName || report.recommendedDoctor?.name,
+                      )
+                    }
                     className="mt-4 w-full bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-500 focus-visible:ring-emerald-500"
                   >
-                    
                     <MessageCircle className="mr-2 h-4 w-4 text-white" />
                     Make Quick Appointment
                   </Button>

@@ -8,6 +8,7 @@ const defaultBranding = {
   primaryColor: '#0F62FE',
   secondaryColor: '#020617',
   tagline: 'Hospital Intelligence Suite',
+  subdomain: null,
 };
 
 const HospitalBrandingContext = createContext({
@@ -34,7 +35,10 @@ export function HospitalBrandingProvider({ children }) {
       setLoading(false);
     } catch (err) {
       console.error('Failed to load hospital branding meta', err);
-      setBranding(defaultBranding);
+      setBranding({
+        ...defaultBranding,
+        mode: 'global',
+      });
       setError('Unable to load brand information. Showing default experience.');
       setLoading(false);
     }

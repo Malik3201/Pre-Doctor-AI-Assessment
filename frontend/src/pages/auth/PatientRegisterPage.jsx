@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import AuthLayout from '../../layouts/AuthLayout';
 import Input from '../../components/ui/Input';
 import Label from '../../components/ui/Label';
@@ -31,9 +32,13 @@ export default function PatientRegisterPage() {
     confirmPassword: '',
     age: '',
     gender: 'prefer_not_to_say',
+    cnic: '',
   });
   const [status, setStatus] = useState({ error: '', success: '' });
+  const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -60,6 +65,20 @@ export default function PatientRegisterPage() {
       return;
     }
 
+    const nextErrors = {};
+    const cleanedCnic = form.cnic.replace(/\D/g, '');
+    if (!cleanedCnic) {
+      nextErrors.cnic = 'CNIC is required.';
+    } else if (!/^\d{13}$/.test(cleanedCnic)) {
+      nextErrors.cnic = 'Please enter a valid 13-digit CNIC.';
+    }
+
+    if (Object.keys(nextErrors).length) {
+      setFormErrors(nextErrors);
+      return;
+    }
+
+    setFormErrors({});
     setStatus({ error: '', success: '' });
     setIsSubmitting(true);
     try {
@@ -69,6 +88,7 @@ export default function PatientRegisterPage() {
         password: form.password,
         age: parsedAge,
         gender: form.gender,
+        cnic: form.cnic.trim(),
       };
       await apiClient.post('/auth/patient/register', payload, { __isAuthRequest: true });
       await login({ email: payload.email, password: payload.password });
@@ -132,27 +152,65 @@ export default function PatientRegisterPage() {
           />
         </div>
         <div>
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="cnic">CNIC / National ID</Label>
           <Input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="Create a secure password"
-            value={form.password}
+            id="cnic"
+            name="cnic"
+            placeholder="12345-1234567-1"
+            value={form.cnic}
             onChange={handleChange}
             required
           />
+          {formErrors.cnic && <p className="mt-1 text-xs text-rose-600">{formErrors.cnic}</p>}
+        </div>
+        <div>
+          <Label htmlFor="password">Password</Label>
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Create a secure password"
+              value={form.password}
+              onChange={handleChange}
+              required
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-slate-600"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
         <div>
           <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <Input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            required
-          />
+          <div className="relative">
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={form.confirmPassword}
+              onChange={handleChange}
+              required
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-slate-600"
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            >
+              {showConfirmPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </div>
         <div>
           <Label htmlFor="age">Age</Label>

@@ -9,6 +9,7 @@ const buildUserResponse = (user) => ({
   hospital: user.hospital,
   age: user.age,
   gender: user.gender,
+  cnic: user.cnic,
 });
 
 export const login = async (req, res, next) => {
@@ -47,18 +48,20 @@ export const login = async (req, res, next) => {
 
 const ALLOWED_GENDERS = ['male', 'female', 'other', 'prefer_not_to_say'];
 
+const CNIC_PATTERN = /^\d{13}$/;
+
 export const registerPatient = async (req, res, next) => {
   try {
     if (!req.hospital) {
       return res.status(400).json({ message: 'Hospital context is required' });
     }
 
-    const { name, email, password, age, gender } = req.body || {};
+    const { name, email, password, age, gender, cnic } = req.body || {};
 
-    if (!name || !email || !password || age === undefined || !gender) {
+    if (!name || !email || !password || age === undefined || !gender || !cnic) {
       return res
         .status(400)
-        .json({ message: 'Name, email, password, age, and gender are required' });
+        .json({ message: 'Name, email, password, age, gender, and CNIC are required' });
     }
 
     const parsedAge = Number(age);
@@ -70,9 +73,21 @@ export const registerPatient = async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid gender selection.' });
     }
 
+    const cleanedCnic = String(cnic).replace(/\D/g, '');
+    if (!CNIC_PATTERN.test(cleanedCnic)) {
+      return res.status(400).json({
+        message: 'Invalid CNIC format. Please provide 13 digits (with or without dashes).',
+      });
+    }
+
     const existingUser = await User.findOne({ email, hospital: req.hospital._id });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    const existingCnicUser = await User.findOne({ cnic: cleanedCnic, role: 'PATIENT' });
+    if (existingCnicUser) {
+      return res.status(400).json({ message: 'This CNIC is already registered as a patient.' });
     }
 
     const user = await User.create({
@@ -83,6 +98,7 @@ export const registerPatient = async (req, res, next) => {
       hospital: req.hospital._id,
       age: parsedAge,
       gender,
+      cnic: cleanedCnic,
     });
 
     const token = generateToken(user._id);

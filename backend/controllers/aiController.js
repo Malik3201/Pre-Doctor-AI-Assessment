@@ -70,17 +70,33 @@ export const aiHealthCheck = async (req, res, next) => {
       dietPlan,
       whatToAvoid,
       homeCare,
-      recommendedDoctorId,
+      recommendedDoctorId: rawRecommendedDoctorId,
       modelInfo,
     } = data;
 
-    let recommendedDoctor = null;
+    // Resolve recommended doctor and capture a snapshot for long-term stability
+    let recommendedDoctorId = rawRecommendedDoctorId || null;
+    let recommendedDoctorName = null;
+    let recommendedDoctorQualification = null;
+    let recommendedDoctorSpecialization = null;
+
     if (recommendedDoctorId) {
-      recommendedDoctor = await Doctor.findOne({
+      const doc = await Doctor.findOne({
         _id: recommendedDoctorId,
         hospital: hospital._id,
         status: 'active',
-      }).select('_id');
+      })
+        .select('name qualification specialization')
+        .lean();
+
+      if (doc) {
+        recommendedDoctorName = doc.name;
+        recommendedDoctorQualification = doc.qualification || '';
+        recommendedDoctorSpecialization = doc.specialization || '';
+      } else {
+        // If AI returned an invalid or inactive doctor, drop the recommendation
+        recommendedDoctorId = null;
+      }
     }
 
     const report = await Report.create({
@@ -96,7 +112,10 @@ export const aiHealthCheck = async (req, res, next) => {
       dietPlan,
       whatToAvoid,
       homeCare,
-      recommendedDoctor: recommendedDoctor ? recommendedDoctor._id : null,
+      recommendedDoctor: recommendedDoctorId,
+      recommendedDoctorName,
+      recommendedDoctorQualification,
+      recommendedDoctorSpecialization,
       source: 'AI',
       modelInfo,
     });
@@ -134,7 +153,7 @@ export const aiHealthCheck = async (req, res, next) => {
 
     const populatedReport = await Report.findById(report._id).populate(
       'recommendedDoctor',
-      'name specialization timings'
+      'name qualification specialization timings'
     );
 
     return res.status(201).json({ assistantIntro, report: populatedReport });

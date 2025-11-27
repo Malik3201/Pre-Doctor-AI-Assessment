@@ -6,6 +6,9 @@ import {
   getHealthReports,
   getHealthReportById,
   downloadHealthReportPdf,
+  getPatientProfile,
+  updatePatientProfile,
+  updatePatientPassword,
 } from '../controllers/patientController.js';
 
 const router = express.Router();
@@ -16,6 +19,9 @@ router.route('/dashboard').get(getPatientDashboard);
 router.route('/checkups').post(createHealthCheckReport).get(getHealthReports);
 router.route('/checkups/:id').get(getHealthReportById);
 router.route('/checkups/:id/pdf').get(downloadHealthReportPdf);
+
+router.route('/profile').get(getPatientProfile).put(updatePatientProfile);
+router.route('/profile/password').patch(updatePatientPassword);
 
 export default router;
 

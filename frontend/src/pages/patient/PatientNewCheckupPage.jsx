@@ -87,6 +87,7 @@ export default function PatientNewCheckupPage() {
   const [whatsAppNumber, setWhatsAppNumber] = useState(appointmentWhatsApp || '');
   const assistantGreeting = useMemo(() => buildIntro(assistantName || 'AI assistant'), [assistantName]);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const [messages, setMessages] = useState(() => [buildMessage('assistant', assistantGreeting)]);
   const [inputValue, setInputValue] = useState('');
@@ -240,6 +241,13 @@ export default function PatientNewCheckupPage() {
 
   const waitingForAssistant = Boolean(symptomInput && !pendingQuestion && !finalReport);
   const inputDisabled = chatLoading || finalizing || waitingForAssistant || Boolean(finalReport);
+
+  // Keep input focused whenever the chat is active and input is enabled
+  useEffect(() => {
+    if (!inputDisabled && !showReport) {
+      inputRef.current?.focus();
+    }
+  }, [inputDisabled, showReport]);
 
   // Show report view after report is generated
   if (showReport && finalReport) {
@@ -408,13 +416,22 @@ export default function PatientNewCheckupPage() {
               <div className="space-y-2">
                 <p className="text-lg font-bold text-slate-900">
                   {finalReport.recommendedDoctor.name}
+                  {finalReport.recommendedDoctor.qualification && (
+                    <span className="font-normal text-slate-700">
+                      {', '}
+                      {finalReport.recommendedDoctor.qualification}
+                    </span>
+                  )}
                 </p>
-                <p className="text-sm font-medium text-slate-700">
-                  {finalReport.recommendedDoctor.specialization || 'Specialist'}
-                </p>
+                {finalReport.recommendedDoctor.specialization && (
+                  <p className="text-sm font-medium text-slate-700">
+                    {finalReport.recommendedDoctor.specialization}
+                  </p>
+                )}
                 {finalReport.recommendedDoctor.timings && (
                   <p className="text-sm text-slate-600">
-                    <span className="font-medium">Available:</span> {finalReport.recommendedDoctor.timings}
+                    <span className="font-medium">Available:</span>{' '}
+                    {finalReport.recommendedDoctor.timings}
                   </p>
                 )}
                 {finalReport.recommendedDoctor.description && (
@@ -482,7 +499,7 @@ export default function PatientNewCheckupPage() {
     >
       {error && <ErrorBanner message={error} className="mb-4" />}
 
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-7xl">
         <Card className="flex h-[calc(100vh-16rem)] min-h-[500px] flex-col overflow-hidden p-0 md:h-[600px]">
           {/* Chat Header */}
           <div className="border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-4 md:px-6">
@@ -561,9 +578,10 @@ export default function PatientNewCheckupPage() {
             onSubmit={handleSend}
             className="border-t border-slate-200 bg-white p-4 md:px-6"
           >
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 min-w-0">
                 <textarea
+                  ref={inputRef}
                   value={inputValue}
                   onChange={(event) => setInputValue(event.target.value)}
                   onKeyDown={(e) => {

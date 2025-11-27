@@ -1,8 +1,11 @@
 import { cn } from '../../utils/cn';
 
-export default function Card({ className, children }) {
+export default function Card({ className, children, ...props }) {
   return (
-    <div className={cn('rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm', className)}>
+    <div
+      className={cn('rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm', className)}
+      {...props}
+    >
       {children}
     </div>
   );

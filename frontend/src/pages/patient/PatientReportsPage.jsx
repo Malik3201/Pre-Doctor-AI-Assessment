@@ -113,9 +113,24 @@ export default function PatientReportsPage() {
                   {new Date(report.createdAt).toLocaleDateString()}
                 </p>
                 <p className="mt-1 text-base font-semibold text-slate-900">{report.summary}</p>
-                {report.recommendedDoctor && (
+                {(report.recommendedDoctorName ||
+                  report.recommendedDoctorQualification ||
+                  report.recommendedDoctor) && (
                   <p className="mt-1 text-xs text-slate-500">
-                    Recommended doctor: {report.recommendedDoctor.name}
+                    Recommended doctor:{' '}
+                    {report.recommendedDoctorName ? (
+                      <>
+                        {report.recommendedDoctorName}
+                        {report.recommendedDoctorQualification && (
+                          <span>
+                            {', '}
+                            {report.recommendedDoctorQualification}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      report.recommendedDoctor?.name || '—'
+                    )}
                   </p>
                 )}
               </div>

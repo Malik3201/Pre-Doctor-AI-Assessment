@@ -12,6 +12,7 @@ export const AuthContext = createContext({
   isLoading: false,
   login: async () => {},
   logout: () => {},
+  updateUser: () => {},
 });
 
 const STORAGE_USER_KEY = 'authUser';
@@ -37,6 +38,18 @@ export function AuthProvider({ children }) {
       }
     }
     setIsInitialized(true);
+  }, []);
+
+  const updateUser = useCallback((updater) => {
+    setUser((prevUser) => {
+      const nextUser = typeof updater === 'function' ? updater(prevUser) : updater;
+      if (nextUser) {
+        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(nextUser));
+      } else {
+        localStorage.removeItem(STORAGE_USER_KEY);
+      }
+      return nextUser;
+    });
   }, []);
 
   const login = useCallback(
@@ -102,8 +115,9 @@ export function AuthProvider({ children }) {
       isLoading: isLoading || !isInitialized,
       login,
       logout,
+      updateUser,
     }),
-    [user, token, isLoading, isInitialized, login, logout],
+    [user, token, isLoading, isInitialized, login, logout, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -16,10 +16,14 @@ import HospitalAnalyticsPage from './pages/hospital/HospitalAnalyticsPage';
 import PatientDashboardPage from './pages/patient/PatientDashboardPage';
 import PatientReportsPage from './pages/patient/PatientReportsPage';
 import PatientReportDetailPage from './pages/patient/PatientReportDetailPage';
+import PatientSettingsPage from './pages/patient/PatientSettingsPage';
 import PatientNewCheckupPage from './pages/patient/PatientNewCheckupPage';
 import NotFoundPage from './pages/misc/NotFoundPage';
 import UnauthorizedPage from './pages/misc/UnauthorizedPage';
 import LandingPage from './pages/misc/LandingPage';
+
+import TermsAndConditionsPage from './pages/public/TermsAndConditionsPage';
+import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 
 function App() {
   return (
@@ -30,6 +34,8 @@ function App() {
       <Route path="/secret/super-admin" element={<SuperAdminLoginPage />} />
       <Route path="/auth/patient/register" element={<PatientRegisterPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
 
       <Route element={<ProtectedRoute requiredRole="SUPER_ADMIN" />}>
         <Route path="/super/dashboard" element={<SuperDashboardPage />} />
@@ -52,6 +58,7 @@ function App() {
         <Route path="/app/reports" element={<PatientReportsPage />} />
         <Route path="/app/reports/:id" element={<PatientReportDetailPage />} />
         <Route path="/app/checkup/new" element={<PatientNewCheckupPage />} />
+        <Route path="/app/settings" element={<PatientSettingsPage />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

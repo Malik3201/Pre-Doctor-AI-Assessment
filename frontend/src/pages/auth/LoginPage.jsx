@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import AuthLayout from '../../layouts/AuthLayout';
 import Input from '../../components/ui/Input';
 import Label from '../../components/ui/Label';
@@ -23,9 +24,14 @@ export default function LoginPage() {
   const { login, isLoading } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { branding, loading: brandingLoading } = useHospitalBranding();
   const { isRoot } = useTenant();
   const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  const hostParts = useMemo(() => (hostname ? hostname.split('.').filter(Boolean) : []), [hostname]);
+  const isHospitalPortal =
+    hostParts.length > 2 ||
+    (hostParts.length === 2 && hostParts[1] === 'localhost' && hostParts[0] !== 'localhost');
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -112,8 +118,8 @@ export default function LoginPage() {
     );
   }
 
-  // Render login form component (reusable for both layouts)
-  const LoginForm = () => (
+  // Render login form content (reusable for both layouts)
+  const loginForm = (
     <form className="space-y-5" onSubmit={handleSubmit}>
       {error && <ErrorBanner message={error} />}
       <div>
@@ -130,15 +136,26 @@ export default function LoginPage() {
       </div>
       <div>
         <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          placeholder="••••••••"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
+        <div className="relative">
+          <Input
+            id="password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="••••••••"
+            value={form.password}
+            onChange={handleChange}
+            required
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-slate-600"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </div>
       </div>
       <Button
         type="submit"
@@ -155,12 +172,14 @@ export default function LoginPage() {
           'Sign In'
         )}
       </Button>
-      {!isRoot && (
+      {!isRoot && !isHospitalPortal && (
         <p className="text-center text-sm text-slate-500">
           Patients registering? Please switch to your hospital subdomain and use the register
           option.
         </p>
       )}
+
+      {isHospitalPortal && <HospitalPatientRegisterCTA />}
     </form>
   );
 
@@ -178,8 +197,29 @@ export default function LoginPage() {
   // Hospital subdomain: Use existing AuthLayout (single column with hero)
   return (
     <AuthLayout title="Secure Access" subtitle={layoutSubtitle}>
-      <LoginForm />
+      {loginForm}
     </AuthLayout>
+  );
+}
+
+function HospitalPatientRegisterCTA() {
+  const navigate = useNavigate();
+
+  return (
+    <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+      <p className="mb-2 text-sm font-semibold text-slate-700">New patient?</p>
+      <p className="text-sm text-slate-500">
+        Register as a patient of this hospital to continue your AI pre-assessment and keep your
+        reports linked to this care team.
+      </p>
+      <Button
+        type="button"
+        onClick={() => navigate('/auth/patient/register')}
+        className="mt-4 w-full bg-emerald-600 text-white hover:bg-emerald-500 focus-visible:outline-emerald-600"
+      >
+        Register as a patient
+      </Button>
+    </div>
   );
 }
 

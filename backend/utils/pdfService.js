@@ -218,28 +218,52 @@ export const generateReportPdf = ({ hospital, report, patient, assistantName }) 
   }
 
   // === RECOMMENDED DOCTOR ===
-  if (report.recommendedDoctor) {
-    const doctor = report.recommendedDoctor;
+  if (report.recommendedDoctor || report.recommendedDoctorName || report.recommendedDoctorQualification || report.recommendedDoctorSpecialization) {
     drawSectionHeader(doc, 'Recommended Doctor', '#6366f1', '🩺');
-    
+
+    // Prefer snapshot fields; fall back to populated doctor for older reports
+    const snapshotName = report.recommendedDoctorName;
+    const snapshotQualification = report.recommendedDoctorQualification;
+    const snapshotSpecialization = report.recommendedDoctorSpecialization;
+
+    const populatedDoctor = report.recommendedDoctor || {};
+
+    const baseName = snapshotName || populatedDoctor.name || null;
+    const qualification = snapshotQualification || populatedDoctor.qualification || '';
+    const specialization = snapshotSpecialization || populatedDoctor.specialization || '';
+
+    let doctorLine;
+    if (baseName || qualification || specialization) {
+      doctorLine = '';
+      if (baseName) {
+        doctorLine += baseName;
+      }
+      if (qualification) {
+        doctorLine += `${doctorLine ? ', ' : ''}${qualification}`;
+      }
+      if (specialization) {
+        doctorLine += `${doctorLine ? ' – ' : ''}${specialization}`;
+      }
+    } else {
+      doctorLine = 'No specific doctor recommended';
+    }
+
     doc
-      .fontSize(13)
-      .font('Helvetica-Bold')
-      .text(doctor.name || 'N/A');
-    
-    doc.font('Helvetica').fontSize(11);
-    
-    if (doctor.specialization) {
-      doc.text(`Specialization: ${doctor.specialization}`);
-    }
-    if (doctor.timings) {
-      doc.text(`Available: ${doctor.timings}`);
-    }
-    if (doctor.description) {
+      .fontSize(11)
+      .font('Helvetica')
+      .text(`Recommended doctor: ${doctorLine}`);
+
+    // For older reports we may still have richer doctor info; show timings/description if present
+    if (populatedDoctor.timings) {
       doc.moveDown(0.3);
-      doc.fontSize(10).fillColor('#64748b').text(doctor.description);
+      doc.text(`Available: ${populatedDoctor.timings}`);
+    }
+    if (populatedDoctor.description) {
+      doc.moveDown(0.3);
+      doc.fontSize(10).fillColor('#64748b').text(populatedDoctor.description);
       doc.fillColor('black').fontSize(11);
     }
+
     doc.moveDown(0.5);
   }
 

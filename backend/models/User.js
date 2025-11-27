@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+const CNIC_REGEX = /^\d{13}$/;
+
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -29,6 +31,11 @@ const userSchema = new mongoose.Schema(
       enum: ['male', 'female', 'other', 'prefer_not_to_say'],
       default: 'prefer_not_to_say',
     },
+    cnic: {
+      type: String,
+      trim: true,
+      sparse: true,
+    },
     status: {
       type: String,
       enum: ['active', 'banned'],
@@ -38,6 +45,15 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+  }
+);
+
+userSchema.index(
+  { cnic: 1, role: 1 },
+  {
+    unique: true,
+    sparse: true,
+    partialFilterExpression: { role: 'PATIENT', cnic: { $exists: true, $type: 'string' } },
   }
 );
 
@@ -53,6 +69,18 @@ userSchema.pre('save', async function (next) {
   } catch (err) {
     return next(err);
   }
+});
+
+userSchema.pre('save', function (next) {
+  // Normalize & validate CNIC only when it is present / being changed.
+  if (this.role === 'PATIENT' && this.cnic != null) {
+    const normalized = String(this.cnic).replace(/\D/g, '');
+    if (!CNIC_REGEX.test(normalized)) {
+      return next(new Error('Invalid CNIC format. Please provide 13 digits.'));
+    }
+    this.cnic = normalized;
+  }
+  return next();
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
