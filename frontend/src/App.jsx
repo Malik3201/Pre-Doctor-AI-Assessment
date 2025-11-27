@@ -27,7 +27,7 @@ import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 
 function App() {
   return (
-     <h1 style={{ padding: 40 }}>Landing working ✅</h1>;
+     <h1 style={{ padding: 40 }}>Landing working ✅</h1>
     // <Routes>
     //   <Route path="/" element={<LandingPage />} />
 
