@@ -3,6 +3,11 @@ import { triggerAuthLogout } from '../utils/authEvents';
 
 // Extract subdomain from current URL for multi-tenant routing
 const extractSubdomain = () => {
+  // Safety guard for SSR or environments where window is not available
+  if (typeof window === 'undefined' || !window.location) {
+    return null;
+  }
+  
   const hostname = window.location.hostname;
   const parts = hostname.split('.');
   
@@ -26,18 +31,18 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // Safety guard for localStorage access
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   
   // Add subdomain header for multi-tenant routing (works with Vercel backend)
   const subdomain = extractSubdomain();
   if (subdomain) {
     config.headers['X-Tenant-Subdomain'] = subdomain;
-    console.log('✅ Sending X-Tenant-Subdomain header:', subdomain);
-  } else {
-    console.log('⚠️ No subdomain detected. Current hostname:', window.location.hostname);
   }
   
   return config;
