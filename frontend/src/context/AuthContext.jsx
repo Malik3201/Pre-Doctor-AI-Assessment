@@ -27,12 +27,6 @@ export function AuthProvider({ children }) {
   const { showToast } = useToast();
 
   useEffect(() => {
-    // Safety guard for localStorage access
-    if (typeof window === 'undefined' || !window.localStorage) {
-      setIsInitialized(true);
-      return;
-    }
-    
     const storedToken = localStorage.getItem(STORAGE_TOKEN_KEY);
     const storedUser = localStorage.getItem(STORAGE_USER_KEY);
     if (storedToken && storedUser) {
@@ -49,13 +43,10 @@ export function AuthProvider({ children }) {
   const updateUser = useCallback((updater) => {
     setUser((prevUser) => {
       const nextUser = typeof updater === 'function' ? updater(prevUser) : updater;
-      // Safety guard for localStorage access
-      if (typeof window !== 'undefined' && window.localStorage) {
-        if (nextUser) {
-          localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(nextUser));
-        } else {
-          localStorage.removeItem(STORAGE_USER_KEY);
-        }
+      if (nextUser) {
+        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(nextUser));
+      } else {
+        localStorage.removeItem(STORAGE_USER_KEY);
       }
       return nextUser;
     });
@@ -77,11 +68,8 @@ export function AuthProvider({ children }) {
           throw new Error('Invalid login response');
         }
 
-        // Safety guard for localStorage access
-        if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.setItem(STORAGE_TOKEN_KEY, nextToken);
-          localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(nextUser));
-        }
+        localStorage.setItem(STORAGE_TOKEN_KEY, nextToken);
+        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(nextUser));
 
         setToken(nextToken);
         setUser(nextUser);
@@ -101,11 +89,8 @@ export function AuthProvider({ children }) {
   const logout = useCallback(
     (arg) => {
       const message = typeof arg === 'string' ? arg : undefined;
-      // Safety guard for localStorage access
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.removeItem(STORAGE_TOKEN_KEY);
-        localStorage.removeItem(STORAGE_USER_KEY);
-      }
+      localStorage.removeItem(STORAGE_TOKEN_KEY);
+      localStorage.removeItem(STORAGE_USER_KEY);
       setToken(null);
       setUser(null);
       showToast({
