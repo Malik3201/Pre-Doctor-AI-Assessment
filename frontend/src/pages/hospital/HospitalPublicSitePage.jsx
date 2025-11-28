@@ -229,6 +229,16 @@ export default function HospitalPublicSitePage() {
     };
   }, [form]);
 
+  const hasCustomConfig =
+    !!(
+      form.heroTitle ||
+      form.aboutHeading ||
+      form.aboutBody ||
+      (form.highlightStats && form.highlightStats.length > 0) ||
+      (form.services && form.services.length > 0) ||
+      (form.faqItems && form.faqItems.length > 0)
+    );
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsSaving(true);
@@ -245,7 +255,7 @@ export default function HospitalPublicSitePage() {
     }
   };
 
-  const disabledBanner = !form.isEnabled ? (
+  const disabledBanner = !form.isEnabled && !hasCustomConfig ? (
     <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
       Public landing page is currently disabled. Visitors will still see fallback content.
     </div>

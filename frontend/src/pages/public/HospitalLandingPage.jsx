@@ -230,7 +230,17 @@ export default function HospitalLandingPage() {
   const secondaryButtonClass =
     'inline-flex items-center justify-center rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 transition';
 
-  const isDisabledBanner = content.isEnabled === false;
+  const hasCustomConfig =
+    !!publicSite &&
+    !!(
+      publicSite.heroTitle ||
+      publicSite.aboutHeading ||
+      (publicSite.highlightStats && publicSite.highlightStats.length > 0) ||
+      (publicSite.services && publicSite.services.length > 0) ||
+      (publicSite.faqItems && publicSite.faqItems.length > 0)
+    );
+
+  const isDisabledBanner = content.isEnabled === false && !hasCustomConfig;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900" style={{ '--brand-primary': brandColors.primary, '--brand-secondary': brandColors.secondary }}>
