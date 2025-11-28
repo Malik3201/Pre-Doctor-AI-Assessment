@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/shared/ProtectedRoute';
+import EnvWarningBanner from './components/shared/EnvWarningBanner';
 import LoginPage from './pages/auth/LoginPage';
 import SuperAdminLoginPage from './pages/auth/SuperAdminLoginPage';
 import PatientRegisterPage from './pages/auth/PatientRegisterPage';
@@ -27,7 +28,9 @@ import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 
 function App() {
   return (
-    <Routes>
+    <>
+      <EnvWarningBanner />
+      <Routes>
       <Route path="/" element={<LandingPage />} />
 
       <Route path="/auth/login" element={<LoginPage />} />
@@ -63,6 +66,7 @@ function App() {
 
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </>
   );
 }
 

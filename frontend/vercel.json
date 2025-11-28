@@ -1,15 +1,7 @@
 {
-  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/(.*)",
-      "has": [
-        {
-          "type": "header",
-          "key": "accept",
-          "value": "text/html"
-        }
-      ],
       "destination": "/index.html"
     }
   ]

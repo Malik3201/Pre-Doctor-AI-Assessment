@@ -7,6 +7,21 @@ const DEFAULT_TENANT = {
 
 const cloneDefaultTenant = () => ({ ...DEFAULT_TENANT });
 
+const normalizeSubdomain = (value) => {
+  if (!value) {
+    return null;
+  }
+  const trimmed = value.replace(/^\.+|\.+$/g, '');
+  if (!trimmed) {
+    return null;
+  }
+  const withoutWwwPrefix = trimmed.replace(/^www\./i, '');
+  if (!withoutWwwPrefix || withoutWwwPrefix === 'www') {
+    return null;
+  }
+  return withoutWwwPrefix;
+};
+
 const sanitizeHost = (rawHost = '') => {
   if (!rawHost) {
     return '';
@@ -31,7 +46,7 @@ export const parseTenantFromHost = (rawHost = '') => {
 
   // Localhost and *.localhost handling
   if (normalizedParts[normalizedParts.length - 1] === 'localhost') {
-    const subdomain = rawParts.slice(0, -1).join('.') || null;
+    const subdomain = normalizeSubdomain(rawParts.slice(0, -1).join('.'));
     return {
       host,
       baseDomain: 'localhost',
@@ -54,7 +69,7 @@ export const parseTenantFromHost = (rawHost = '') => {
       };
     }
 
-    const subdomain = rawParts.slice(0, -3).join('.');
+    const subdomain = normalizeSubdomain(rawParts.slice(0, -3).join('.'));
     return {
       host,
       baseDomain,
@@ -74,7 +89,7 @@ export const parseTenantFromHost = (rawHost = '') => {
   }
 
   const baseDomain = rawParts.slice(-2).join('.');
-  const subdomain = rawParts.slice(0, -2).join('.');
+  const subdomain = normalizeSubdomain(rawParts.slice(0, -2).join('.'));
 
   return {
     host,

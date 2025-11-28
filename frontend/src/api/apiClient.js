@@ -1,12 +1,17 @@
 import axios from 'axios';
 import { triggerAuthLogout } from '../utils/authEvents';
 import { getBrowserTenant } from '../utils/tenant';
+import { API_BASE_URL, envConfig } from '../config/env';
 
 // Use environment variable for API base URL, fallback to /api for local development
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: API_BASE_URL,
   withCredentials: false,
 });
+
+if (!envConfig.isApiBaseUrlConfigured) {
+  console.info('[API] Using fallback base URL:', API_BASE_URL);
+}
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
