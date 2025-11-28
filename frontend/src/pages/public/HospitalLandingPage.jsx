@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Baby,
   CheckCircle2,
+  ChevronDown,
   HeartPulse,
   Laptop2,
   Mail,
@@ -15,6 +16,9 @@ import {
   Sparkles,
   Stethoscope,
   Users,
+  Clock,
+  Award,
+  Building2,
 } from 'lucide-react';
 import apiClient from '../../api/apiClient';
 
@@ -59,25 +63,35 @@ const servicesIconMap = {
 const getServiceIcon = (key) => servicesIconMap[key] || Sparkles;
 
 const HeroPlaceholder = () => (
-  <div className="rounded-3xl border border-white/20 bg-white/10 p-6 shadow-2xl backdrop-blur">
-    <div className="space-y-4 text-sm text-white/90">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
-        AI Pre-Assessment Report
-      </p>
-      <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
-        <p className="text-xs text-white/70">Chief complaint</p>
-        <p className="font-medium">Chest tightness with exertion</p>
+  <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-white/10 to-white/5 p-8 shadow-2xl backdrop-blur-sm">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1),transparent_50%)]"></div>
+    <div className="relative space-y-5 text-sm text-white/95">
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2">
+        <Sparkles className="h-4 w-4 text-amber-300" />
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/80">AI Pre-Assessment Report</p>
       </div>
-      <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
-        <p className="text-xs text-white/70">AI Summary</p>
-        <p>Structured symptom capture with escalation suggestions for your care team.</p>
-      </div>
-      <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
-        <p className="text-xs text-white/70">Suggested next steps</p>
-        <ul className="list-disc space-y-1 pl-4">
-          <li>ECG + cardiac markers</li>
-          <li>Consult cardiology within 24h</li>
-        </ul>
+      <div className="space-y-4">
+        <div className="rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-white/60">Chief complaint</p>
+          <p className="text-base font-semibold text-white">Chest tightness with exertion</p>
+        </div>
+        <div className="rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-white/60">AI Summary</p>
+          <p className="leading-relaxed text-white/90">Structured symptom capture with escalation suggestions for your care team.</p>
+        </div>
+        <div className="rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-white/60">Suggested next steps</p>
+          <ul className="space-y-2 pl-1">
+            <li className="flex items-center gap-2 text-sm text-white/90">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
+              ECG + cardiac markers
+            </li>
+            <li className="flex items-center gap-2 text-sm text-white/90">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
+              Consult cardiology within 24h
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -90,6 +104,7 @@ export default function HospitalLandingPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [doctorLoading, setDoctorLoading] = useState(false);
   const [error, setError] = useState('');
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
   const fetchDoctors = useCallback(async (ids) => {
     if (!ids?.length) {
@@ -199,19 +214,24 @@ export default function HospitalLandingPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-500">
-        Loading hospital site…
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-slate-600"></div>
+          <p className="text-sm font-medium text-slate-600">Loading hospital site…</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-6 text-center text-slate-600">
-        <p className="text-lg font-semibold text-slate-900">{error}</p>
-        <Link to="/" className="mt-4 text-sm text-blue-600 underline">
-          Go back
-        </Link>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-6 text-center">
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
+          <p className="text-lg font-semibold text-slate-900">{error}</p>
+          <Link to="/" className="mt-4 inline-block text-sm font-medium text-blue-600 transition hover:text-blue-700">
+            Go back
+          </Link>
+        </div>
       </div>
     );
   }
@@ -224,11 +244,6 @@ export default function HospitalLandingPage() {
     primary: hospital.primaryColor || '#0ea5e9',
     secondary: hospital.secondaryColor || '#0f172a',
   };
-
-  const primaryButtonClass =
-    'inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl';
-  const secondaryButtonClass =
-    'inline-flex items-center justify-center rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 transition';
 
   const hasCustomConfig =
     !!publicSite &&
@@ -243,299 +258,395 @@ export default function HospitalLandingPage() {
   const isDisabledBanner = content.isEnabled === false && !hasCustomConfig;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900" style={{ '--brand-primary': brandColors.primary, '--brand-secondary': brandColors.secondary }}>
-      <div className="relative min-h-screen">
-        <nav className="sticky top-0 z-30 border-b border-white/10 bg-slate-900/90 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 text-white">
-            <div className="flex items-center gap-3">
-              {hospital.logo ? (
-                <img src={hospital.logo} alt={hospital.name} className="h-10 w-10 rounded-full border border-white/20 object-cover" />
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-lg font-semibold">
-                  {hospital.name?.charAt(0) || 'H'}
-                </div>
-              )}
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/60">Hospital</p>
-                <p className="text-lg font-semibold">{hospital.name}</p>
+    <div className="min-h-screen bg-white text-slate-900 antialiased" style={{ '--brand-primary': brandColors.primary, '--brand-secondary': brandColors.secondary }}>
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-white/95 backdrop-blur-md shadow-sm transition-all">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            {hospital.logo ? (
+              <img src={hospital.logo} alt={hospital.name} className="h-12 w-12 rounded-xl border-2 border-slate-200 object-cover shadow-sm transition hover:shadow-md" />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 text-xl font-bold text-white shadow-md">
+                {hospital.name?.charAt(0) || 'H'}
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {content.showLoginButton !== false && (
-                <Link to="/auth/login" className={secondaryButtonClass}>
-                  Login
-                </Link>
-              )}
-              {content.showPatientRegisterButton !== false && (
-                <Link
-                  to="/auth/patient/register"
-                  className={primaryButtonClass}
-                  style={{ backgroundColor: brandColors.primary }}
-                >
-                  Patient Register
-                </Link>
-              )}
-            </div>
-          </div>
-        </nav>
-
-        {isDisabledBanner && (
-          <div className="bg-amber-50 py-3 text-center text-sm text-amber-800">
-            This hospital is configuring their new website. Showing default information for now.
-          </div>
-        )}
-
-        {/* Hero */}
-        <section
-          className="relative overflow-hidden bg-slate-900 px-6 py-20 text-white"
-          style={{
-            background: `linear-gradient(135deg, ${brandColors.secondary}, ${brandColors.primary})`,
-          }}
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.15),transparent_60%)]"></div>
-          <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.1fr,0.9fr] lg:items-center">
+            )}
             <div>
-              <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-1 text-xs uppercase tracking-[0.4em] text-white/70">
-                {content.heroTagline}
-              </p>
-              <h1 className="text-4xl font-bold leading-tight md:text-5xl">{content.heroTitle}</h1>
-              <p className="mt-6 text-lg text-white/80">{content.heroSubtitle}</p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500">Hospital</p>
+              <p className="text-lg font-bold text-slate-900">{hospital.name}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {content.showLoginButton !== false && (
+              <Link
+                to="/auth/login"
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-all hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm"
+              >
+                Login
+              </Link>
+            )}
+            {content.showPatientRegisterButton !== false && (
+              <Link
+                to="/auth/patient/register"
+                className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:scale-105"
+                style={{ backgroundColor: brandColors.primary }}
+              >
+                Patient Register
+              </Link>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {isDisabledBanner && (
+        <div className="border-b border-amber-200 bg-gradient-to-r from-amber-50 to-amber-100 py-2.5 text-center">
+          <p className="text-xs font-medium text-amber-800">
+            This hospital is configuring their new website. Showing default information for now.
+          </p>
+        </div>
+      )}
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40"></div>
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            background: `linear-gradient(135deg, ${brandColors.secondary}40, ${brandColors.primary}40)`,
+          }}
+        ></div>
+        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div className="grid gap-12 lg:grid-cols-[1.1fr,0.9fr] lg:items-center">
+            <div className="space-y-6 text-white">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-sm">
+                <Sparkles className="h-4 w-4 text-amber-300" />
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90">{content.heroTagline}</p>
+              </div>
+              <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+                {content.heroTitle}
+              </h1>
+              <p className="text-lg leading-relaxed text-slate-200 sm:text-xl">{content.heroSubtitle}</p>
+              <div className="flex flex-col gap-4 pt-2 sm:flex-row">
                 <Link
                   to="/auth/patient/register"
-                  className={primaryButtonClass}
+                  className="group inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-base font-semibold text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
                   style={{ backgroundColor: brandColors.primary }}
                 >
                   Start AI pre-assessment
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Link>
-                <Link to="/auth/login" className={secondaryButtonClass}>
+                <Link
+                  to="/auth/login"
+                  className="inline-flex items-center justify-center rounded-xl border-2 border-white/30 bg-white/10 px-6 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition-all hover:border-white/50 hover:bg-white/20"
+                >
                   Doctor login
                 </Link>
               </div>
             </div>
-            <div className="relative">
+            <div className="relative lg:pl-8">
               {content.heroImageUrl ? (
-                <img
-                  src={content.heroImageUrl}
-                  alt="Hospital hero"
-                  className="rounded-3xl border border-white/20 shadow-2xl"
-                />
+                <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+                  <img
+                    src={content.heroImageUrl}
+                    alt="Hospital hero"
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent"></div>
+                </div>
               ) : (
                 <HeroPlaceholder />
               )}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Highlight stats */}
-        <section className="bg-white py-10">
-          <div className="mx-auto grid max-w-5xl gap-6 px-6 sm:grid-cols-3">
+      {/* Stats Section */}
+      <section className="relative -mt-12 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {content.highlightStats.map((stat, index) => (
-              <div key={`stat-${index}`} className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center shadow-sm">
-                <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
-                <p className="mt-2 text-sm text-slate-500">{stat.label}</p>
+              <div
+                key={`stat-${index}`}
+                className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-white opacity-0 transition-opacity group-hover:opacity-100"></div>
+                <div className="relative">
+                  <p className="text-4xl font-extrabold text-slate-900 sm:text-5xl">{stat.value}</p>
+                  <p className="mt-2 text-sm font-medium text-slate-600">{stat.label}</p>
+                </div>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* About */}
-        <section className="bg-white py-16">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-2">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">About</p>
-              <h2 className="mt-3 text-3xl font-bold text-slate-900">{content.aboutHeading}</h2>
-              <p className="mt-5 text-lg text-slate-600">{content.aboutBody}</p>
+      {/* About Section */}
+      <section className="bg-white py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
+            <div className="space-y-6">
+              <div className="inline-block">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">About us</p>
+              </div>
+              <h2 className="text-3xl font-extrabold text-slate-900 sm:text-4xl">{content.aboutHeading}</h2>
+              <p className="text-lg leading-relaxed text-slate-600">{content.aboutBody}</p>
             </div>
-            <div className="space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-6">
+            <div className="space-y-4 rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-8 shadow-lg">
               {[
                 {
+                  icon: Sparkles,
                   title: 'AI-assisted intake',
                   description: 'Patients complete a guided pre-assessment so doctors see risk scores and summaries before the visit.',
                 },
                 {
+                  icon: Users,
                   title: 'Coordinated care',
                   description: 'OPD, emergency, and virtual follow-ups share the same patient story for continuity.',
                 },
                 {
+                  icon: Shield,
                   title: 'Hospital-grade privacy',
-                  description: 'Built on Pre-Doctor AI’s secure multi-tenant architecture with role-based controls.',
+                  description: "Built on Pre-Doctor AI's secure multi-tenant architecture with role-based controls.",
                 },
-              ].map((item) => (
-                <div key={item.title} className="flex gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                  <div>
-                    <p className="font-semibold text-slate-900">{item.title}</p>
-                    <p className="text-sm text-slate-500">{item.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Services */}
-        <section className="bg-slate-50 py-16">
-          <div className="mx-auto max-w-6xl px-6">
-            <div className="mb-10 text-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Departments</p>
-              <h2 className="mt-3 text-3xl font-bold text-slate-900">{content.servicesHeading}</h2>
-              <p className="mt-3 text-slate-600">
-                Specialist-led departments supported by AI-guided triage.
-              </p>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2">
-              {content.services.map((service, index) => {
-                const Icon = getServiceIcon(service.iconKey);
+              ].map((item) => {
+                const Icon = item.icon;
                 return (
-                  <div
-                    key={`service-${index}`}
-                    className="rounded-3xl border border-white bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold text-slate-900">{service.title}</h3>
-                      </div>
+                  <div key={item.title} className="flex gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
+                      <Icon className="h-5 w-5" />
                     </div>
-                    <p className="mt-3 text-sm text-slate-600">{service.description}</p>
+                    <div>
+                      <h3 className="font-bold text-slate-900">{item.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-slate-600">{item.description}</p>
+                    </div>
                   </div>
                 );
               })}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* AI banner */}
-        {content.showAiBanner && (
-          <section className="py-16">
-            <div
-              className="mx-auto max-w-5xl rounded-3xl px-8 py-10 text-white shadow-xl"
-              style={{ background: `linear-gradient(135deg, ${brandColors.primary}, ${brandColors.secondary})` }}
-            >
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
-                <div className="flex-1">
-                  <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/70">AI Pre-Assessment</p>
-                  <h3 className="mt-3 text-3xl font-bold">{content.aiBannerTitle}</h3>
-                  <p className="mt-3 text-white/90">{content.aiBannerText}</p>
+      {/* Services Section */}
+      <section className="bg-gradient-to-b from-slate-50 to-white py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-12 text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Departments</p>
+            <h2 className="mt-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">{content.servicesHeading}</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
+              Specialist-led departments supported by AI-guided triage.
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+            {content.services.map((service, index) => {
+              const Icon = getServiceIcon(service.iconKey);
+              return (
+                <div
+                  key={`service-${index}`}
+                  className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-md transition-all hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 shadow-sm transition-transform group-hover:scale-110">
+                      <Icon className="h-7 w-7" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-slate-900">{service.title}</h3>
+                      <p className="mt-2 leading-relaxed text-slate-600">{service.description}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 space-y-3 rounded-2xl border border-white/20 bg-white/10 p-4 text-sm text-white/90">
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* AI Banner */}
+      {content.showAiBanner && (
+        <section className="py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div
+              className="relative overflow-hidden rounded-3xl px-8 py-12 text-white shadow-2xl sm:px-12 sm:py-16"
+              style={{
+                background: `linear-gradient(135deg, ${brandColors.primary}, ${brandColors.secondary})`,
+              }}
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent_60%)]"></div>
+              <div className="relative grid gap-8 lg:grid-cols-2 lg:items-center">
+                <div className="space-y-4">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-sm">
+                    <Sparkles className="h-4 w-4 text-amber-300" />
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90">AI Pre-Assessment</p>
+                  </div>
+                  <h3 className="text-3xl font-extrabold sm:text-4xl">{content.aiBannerTitle}</h3>
+                  <p className="text-lg leading-relaxed text-white/90">{content.aiBannerText}</p>
+                </div>
+                <div className="space-y-3 rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-sm">
                   {[
                     'Patients answer questions from home or kiosks',
                     'AI summarizes symptoms + risk level',
                     'Doctors review before meeting the patient',
-                  ].map((item) => (
-                    <div key={item} className="flex items-center gap-3">
-                      <Sparkles className="h-4 w-4 text-amber-300" />
-                      <span>{item}</span>
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3">
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20">
+                        <CheckCircle2 className="h-4 w-4 text-amber-300" />
+                      </div>
+                      <span className="text-sm font-medium text-white/95">{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* Doctors highlight */}
-        {content.showDoctorsHighlight && (
-          <section className="bg-white py-16">
-            <div className="mx-auto max-w-6xl px-6">
-              <div className="mb-10 text-center">
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Care team</p>
-                <h2 className="mt-3 text-3xl font-bold text-slate-900">{content.doctorsHeading}</h2>
+      {/* Doctors Section */}
+      {content.showDoctorsHighlight && (
+        <section className="bg-white py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-12 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Care team</p>
+              <h2 className="mt-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">{content.doctorsHeading}</h2>
+            </div>
+            {doctorLoading && (
+              <div className="text-center">
+                <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-slate-600"></div>
+                <p className="text-sm text-slate-500">Loading doctors…</p>
               </div>
-              {doctorLoading && (
-                <p className="text-center text-sm text-slate-500">Loading doctors…</p>
-              )}
-              {!doctorLoading && doctors.length === 0 && (
-                <p className="text-center text-sm text-slate-500">Highlighted doctors will appear here soon.</p>
-              )}
-              <div className="grid gap-6 md:grid-cols-2">
-                {doctors.map((doctor) => (
-                  <div key={doctor.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900/10 text-lg font-semibold text-slate-900">
-                        {doctor.name?.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="text-lg font-semibold text-slate-900">{doctor.name}</p>
-                        <p className="text-sm text-slate-500">{doctor.specialization}</p>
-                        <p className="text-xs text-slate-400">{doctor.qualification}</p>
-                      </div>
+            )}
+            {!doctorLoading && doctors.length === 0 && (
+              <p className="text-center text-sm text-slate-500">Highlighted doctors will appear here soon.</p>
+            )}
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {doctors.map((doctor) => (
+                <div
+                  key={doctor.id}
+                  className="group overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 shadow-md transition-all hover:-translate-y-1 hover:shadow-xl"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-lg font-bold text-white shadow-md">
+                      {doctor.name?.charAt(0)}
                     </div>
-                    {doctor.description && <p className="mt-4 text-sm text-slate-600">{doctor.description}</p>}
-                    {doctor.expertiseTags?.length > 0 && (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {doctor.expertiseTags.map((tag) => (
-                          <span key={tag} className="rounded-full bg-white px-3 py-1 text-xs text-slate-600">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-slate-900">{doctor.name}</h3>
+                      <p className="mt-1 text-sm font-medium text-slate-600">{doctor.specialization}</p>
+                      {doctor.qualification && (
+                        <p className="mt-0.5 text-xs text-slate-500">{doctor.qualification}</p>
+                      )}
+                    </div>
                   </div>
-                ))}
-              </div>
+                  {doctor.description && (
+                    <p className="mt-4 text-sm leading-relaxed text-slate-600">{doctor.description}</p>
+                  )}
+                  {doctor.expertiseTags?.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {doctor.expertiseTags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* FAQ */}
-        {content.showFaq && content.faqItems.length > 0 && (
-          <section className="bg-slate-50 py-16">
-            <div className="mx-auto max-w-4xl px-6">
-              <div className="mb-10 text-center">
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">FAQ</p>
-                <h2 className="mt-3 text-3xl font-bold text-slate-900">{content.faqHeading}</h2>
-              </div>
-              <div className="space-y-4">
-                {content.faqItems.map((item, index) => (
-                  <details key={`faq-${index}`} className="group rounded-2xl border border-slate-200 bg-white p-5">
-                    <summary className="flex cursor-pointer items-center justify-between text-lg font-semibold text-slate-900">
-                      {item.question}
-                      <span className="text-sm text-slate-500 transition group-open:rotate-180">⌄</span>
-                    </summary>
-                    <p className="mt-3 text-sm text-slate-600">{item.answer}</p>
-                  </details>
-                ))}
-              </div>
+      {/* FAQ Section */}
+      {content.showFaq && content.faqItems.length > 0 && (
+        <section className="bg-gradient-to-b from-slate-50 to-white py-20 sm:py-24">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-12 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">FAQ</p>
+              <h2 className="mt-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">{content.faqHeading}</h2>
             </div>
-          </section>
-        )}
+            <div className="space-y-3">
+              {content.faqItems.map((item, index) => (
+                <div
+                  key={`faq-${index}`}
+                  className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:border-slate-300 hover:shadow-md"
+                >
+                  <button
+                    onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+                    className="flex w-full items-center justify-between p-6 text-left transition-colors hover:bg-slate-50"
+                  >
+                    <span className="pr-8 text-base font-semibold text-slate-900 sm:text-lg">{item.question}</span>
+                    <ChevronDown
+                      className={`h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 ${
+                        openFaqIndex === index ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+                  {openFaqIndex === index && (
+                    <div className="border-t border-slate-100 px-6 pb-6 pt-4">
+                      <p className="leading-relaxed text-slate-600">{item.answer}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
-        {/* Contact */}
-        {content.showContact && (
-          <section className="bg-white py-16">
-            <div className="mx-auto grid max-w-6xl gap-8 px-6 lg:grid-cols-[1.2fr,0.8fr]">
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8">
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Contact</p>
-                <h2 className="mt-3 text-3xl font-bold text-slate-900">{content.contact.heading}</h2>
-                <div className="mt-6 space-y-4 text-sm text-slate-600">
-                  <div className="flex items-center gap-3">
-                    <Phone className="h-4 w-4 text-slate-500" />
-                    <span>{content.contact.phone}</span>
+      {/* Contact Section */}
+      {content.showContact && (
+        <section className="bg-white py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid gap-8 lg:grid-cols-[1.2fr,0.8fr]">
+              <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-8 shadow-lg sm:p-10">
+                <div className="mb-6">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Contact</p>
+                  <h2 className="mt-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">{content.contact.heading}</h2>
+                </div>
+                <div className="space-y-5">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
+                      <Phone className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Phone</p>
+                      <a href={`tel:${content.contact.phone}`} className="mt-1 block text-base font-semibold text-slate-900 hover:text-blue-600 transition-colors">
+                        {content.contact.phone}
+                      </a>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Mail className="h-4 w-4 text-slate-500" />
-                    <span>{content.contact.email}</span>
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
+                      <Mail className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Email</p>
+                      <a href={`mailto:${content.contact.email}`} className="mt-1 block text-base font-semibold text-slate-900 hover:text-blue-600 transition-colors">
+                        {content.contact.email}
+                      </a>
+                    </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <MapPin className="mt-1 h-4 w-4 text-slate-500" />
-                    <span>{content.contact.address}</span>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
+                      <MapPin className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Address</p>
+                      <p className="mt-1 text-base leading-relaxed text-slate-700">{content.contact.address}</p>
+                    </div>
                   </div>
                 </div>
               </div>
               {content.contact.mapEmbedUrl && (
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-2">
+                <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-lg">
                   <iframe
                     src={content.contact.mapEmbedUrl}
                     title="Hospital map"
                     width="100%"
-                    height="320"
-                    className="h-full w-full rounded-3xl"
+                    height="100%"
+                    className="h-full min-h-[400px] w-full"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     allowFullScreen
@@ -543,29 +654,34 @@ export default function HospitalLandingPage() {
                 </div>
               )}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* Footer */}
-        <footer className="border-t border-slate-200 bg-slate-900 py-10 text-white">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-center text-sm md:flex-row">
+      {/* Footer */}
+      <footer className="border-t border-slate-200 bg-gradient-to-b from-slate-900 to-slate-950 py-12 text-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
             <div>
-              <p className="font-semibold">{hospital.name}</p>
-              <p className="text-white/60">
+              <p className="text-lg font-bold">{hospital.name}</p>
+              <p className="mt-1 text-sm text-slate-400">
                 © {new Date().getFullYear()} {hospital.name}. All rights reserved.
               </p>
             </div>
-            <div className="text-white/70">
+            <div className="text-sm text-slate-400">
               Powered by{' '}
-              <a href="https://predoctorai.online" target="_blank" rel="noreferrer" className="underline">
+              <a
+                href="https://predoctorai.online"
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-white transition hover:text-blue-400"
+              >
                 Pre-Doctor AI
               </a>
             </div>
           </div>
-        </footer>
-      </div>
+        </div>
+      </footer>
     </div>
   );
 }
-
-
