@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import AuthLayout from '../../layouts/AuthLayout';
@@ -26,12 +26,10 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { branding, loading: brandingLoading } = useHospitalBranding();
-  const { isRoot } = useTenant();
-  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-  const hostParts = useMemo(() => (hostname ? hostname.split('.').filter(Boolean) : []), [hostname]);
-  const isHospitalPortal =
-    hostParts.length > 2 ||
-    (hostParts.length === 2 && hostParts[1] === 'localhost' && hostParts[0] !== 'localhost');
+  const { host, subdomain, isRoot, baseDomain } = useTenant();
+  const hostname = host || (typeof window !== 'undefined' ? window.location.hostname : '');
+  const guideHostname = baseDomain || hostname;
+  const isHospitalPortal = Boolean(subdomain);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -64,7 +62,6 @@ export default function LoginPage() {
   }
 
   // Check if subdomain exists: if mode is 'not_found', hospital doesn't exist in DB
-  const { subdomain } = useTenant();
   const hospitalNotFound = branding.mode === 'not_found' || (!isRoot && subdomain && branding.mode === 'global');
 
   // Hospital not found error page
@@ -101,7 +98,7 @@ export default function LoginPage() {
 
               {/* Subdomain Guide */}
               <div className="border-t border-slate-200 pt-8">
-                <HospitalSubdomainGuide hostname={hostname} />
+                <HospitalSubdomainGuide hostname={guideHostname} />
               </div>
 
               {/* Contact Message */}
@@ -188,7 +185,7 @@ export default function LoginPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-16">
         <div className="w-full max-w-4xl">
-          <HospitalSubdomainGuide hostname={hostname} />
+          <HospitalSubdomainGuide hostname={guideHostname} />
         </div>
       </div>
     );

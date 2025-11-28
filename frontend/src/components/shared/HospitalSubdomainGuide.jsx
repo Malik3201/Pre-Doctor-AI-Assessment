@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowDown, ArrowUp, Building2 } from 'lucide-react';
+import { ArrowDown, Building2 } from 'lucide-react';
 import Card from '../ui/Card';
+import { parseTenantFromHost } from '../../utils/tenant';
 
-export default function HospitalSubdomainGuide({ hostname }) {
+export default function HospitalSubdomainGuide({ hostname = '' }) {
   const [currentSubdomain, setCurrentSubdomain] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
@@ -12,21 +13,11 @@ export default function HospitalSubdomainGuide({ hostname }) {
   // For localhost: "gg.localhost" -> "localhost"
   // For production: "wrongsubdomain.predoctorai.online" -> "predoctorai.online"
   const baseDomain = useMemo(() => {
-    const parts = hostname.split('.').filter(Boolean);
-    
-    // Handle localhost case: if last part is "localhost", base domain is just "localhost"
-    if (parts[parts.length - 1] === 'localhost') {
-      return 'localhost';
+    const parsed = parseTenantFromHost(hostname);
+    if (parsed.baseDomain) {
+      return parsed.baseDomain;
     }
-    
-    // For production domains, return last 2 parts (domain.tld)
-    // e.g., "predoctorai.online" or "wrongsubdomain.predoctorai.online" -> "predoctorai.online"
-    if (parts.length <= 2) {
-      return hostname; // Already base domain (e.g., "predoctorai.online")
-    }
-    
-    // Always return last two parts, ignoring any subdomain
-    return parts.slice(-2).join('.');
+    return hostname || 'your-domain.com';
   }, [hostname]);
 
   const subdomainExamples = ['dhq', 'alshifa', 'your-hospital'];

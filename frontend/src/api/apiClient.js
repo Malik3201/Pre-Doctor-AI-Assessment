@@ -1,23 +1,6 @@
 import axios from 'axios';
 import { triggerAuthLogout } from '../utils/authEvents';
-
-// Extract subdomain from current URL for multi-tenant routing
-const extractSubdomain = () => {
-  const hostname = window.location.hostname;
-  const parts = hostname.split('.');
-  
-  // localhost case: dhq.localhost
-  if (parts.length === 2 && parts[1] === 'localhost' && parts[0] !== 'www') {
-    return parts[0];
-  }
-  
-  // production case: dhq.yourdomain.com
-  if (parts.length >= 3 && parts[0] !== 'www') {
-    return parts[0];
-  }
-  
-  return null;
-};
+import { getBrowserTenant } from '../utils/tenant';
 
 // Use environment variable for API base URL, fallback to /api for local development
 const apiClient = axios.create({
@@ -30,16 +13,16 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  
+
   // Add subdomain header for multi-tenant routing (works with Vercel backend)
-  const subdomain = extractSubdomain();
-  if (subdomain) {
-    config.headers['X-Tenant-Subdomain'] = subdomain;
-    console.log('✅ Sending X-Tenant-Subdomain header:', subdomain);
-  } else {
-    console.log('⚠️ No subdomain detected. Current hostname:', window.location.hostname);
+  const tenant = typeof window !== 'undefined' ? getBrowserTenant() : null;
+  if (tenant?.subdomain) {
+    config.headers['X-Tenant-Subdomain'] = tenant.subdomain;
+    console.log('✅ Sending X-Tenant-Subdomain header:', tenant.subdomain);
+  } else if (tenant) {
+    console.log('⚠️ No subdomain detected. Current hostname:', tenant.host || 'root domain');
   }
-  
+
   return config;
 });
 
