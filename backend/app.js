@@ -15,7 +15,12 @@ import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import connectDB from "./config/db.js";
 
 const app = express();
-await connectDB();
+
+try {
+  await connectDB();
+} catch (err) {
+  console.error("Initial MongoDB connection failed:", err.message);
+}
 
 const corsOptions = {
   origin: true,
@@ -23,7 +28,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
 app.use(express.json());
 
 // Tenant context middleware must run before public & protected routes
