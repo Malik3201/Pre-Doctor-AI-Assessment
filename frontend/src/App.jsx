@@ -14,6 +14,7 @@ import HospitalSettingsPage from './pages/hospital/HospitalSettingsPage';
 import HospitalDoctorsPage from './pages/hospital/HospitalDoctorsPage';
 import HospitalPatientsPage from './pages/hospital/HospitalPatientsPage';
 import HospitalAnalyticsPage from './pages/hospital/HospitalAnalyticsPage';
+import HospitalPublicSitePage from './pages/hospital/HospitalPublicSitePage';
 import PatientDashboardPage from './pages/patient/PatientDashboardPage';
 import PatientReportsPage from './pages/patient/PatientReportsPage';
 import PatientReportDetailPage from './pages/patient/PatientReportDetailPage';
@@ -25,13 +26,23 @@ import LandingPage from './pages/misc/LandingPage';
 
 import TermsAndConditionsPage from './pages/public/TermsAndConditionsPage';
 import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
+import HospitalLandingPage from './pages/public/HospitalLandingPage';
+import useTenant from './hooks/useTenant';
+
+function TenantAwareLanding() {
+  const tenant = useTenant();
+  if (tenant.isRoot) {
+    return <LandingPage />;
+  }
+  return <HospitalLandingPage />;
+}
 
 function App() {
   return (
     <>
       <EnvWarningBanner />
       <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<TenantAwareLanding />} />
 
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/secret/super-admin" element={<SuperAdminLoginPage />} />
@@ -51,6 +62,7 @@ function App() {
       <Route element={<ProtectedRoute requiredRole="HOSPITAL_ADMIN" requireSubdomain />}>
         <Route path="/hospital/dashboard" element={<HospitalDashboardPage />} />
         <Route path="/hospital/settings" element={<HospitalSettingsPage />} />
+        <Route path="/hospital/public-site" element={<HospitalPublicSitePage />} />
         <Route path="/hospital/doctors" element={<HospitalDoctorsPage />} />
         <Route path="/hospital/patients" element={<HospitalPatientsPage />} />
         <Route path="/hospital/analytics" element={<HospitalAnalyticsPage />} />

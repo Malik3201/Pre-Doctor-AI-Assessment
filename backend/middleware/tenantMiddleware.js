@@ -74,11 +74,15 @@ export const tenantResolver = async (req, res, next) => {
       return next();
     }
 
-    if (hospital.status && hospital.status !== 'active') {
+    const isPublicRoute = typeof req.path === 'string' && req.path.startsWith('/api/public');
+    const isActive = hospital.status === 'active';
+
+    req.hospital = hospital;
+
+    if (!isActive && !isPublicRoute) {
       return res.status(403).json({ message: 'Hospital is not active' });
     }
 
-    req.hospital = hospital;
     return next();
   } catch (err) {
     return next(err);

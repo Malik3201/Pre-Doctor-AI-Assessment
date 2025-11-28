@@ -11,6 +11,8 @@ import {
   getPatients,
   togglePatientBanStatus,
   getHospitalAnalyticsOverview,
+  getPublicSiteConfig,
+  updatePublicSiteConfig,
 } from '../controllers/hospitalAdminController.js';
 
 const router = express.Router();
@@ -23,6 +25,8 @@ router
   .put(restrictTo('HOSPITAL_ADMIN'), updateHospitalSettings);
 
 router.use(restrictTo('HOSPITAL_ADMIN'));
+
+router.route('/public-site').get(getPublicSiteConfig).put(updatePublicSiteConfig);
 
 router.route('/doctors').post(createDoctor).get(getDoctors);
 router.route('/doctors/:id').get(getDoctorById).put(updateDoctor).delete(deleteDoctor);

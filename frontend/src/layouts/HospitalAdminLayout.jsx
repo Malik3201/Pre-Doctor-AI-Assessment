@@ -6,6 +6,7 @@ import {
   UsersRound,
   Building2,
   LogOut,
+  Globe2,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
@@ -15,6 +16,7 @@ import { cn } from '../utils/cn';
 const navLinks = [
   { href: '/hospital/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/hospital/settings', label: 'Branding & AI', icon: Palette },
+  { href: '/hospital/public-site', label: 'Public Site', icon: Globe2 },
   { href: '/hospital/doctors', label: 'Doctors', icon: Stethoscope },
   { href: '/hospital/patients', label: 'Patients', icon: UsersRound },
   { href: '/hospital/analytics', label: 'Analytics', icon: Activity },

@@ -17,27 +17,28 @@ import connectDB from "./config/db.js";
 const app = express();
 await connectDB();
 
-// Core middlewares
-app.use(
-  cors({
-    origin: true,   // jo bhi Origin aaye, usko allow kar do
-    credentials: false,
-  })
-);
+const corsOptions = {
+  origin: true,
+  credentials: false,
+};
 
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 
-// Tenant context middleware
+// Tenant context middleware must run before public & protected routes
 app.use(tenantResolver);
+
+// Public, unauthenticated hospital site routes
+app.use("/api/public", publicRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Route mounting
+// Protected routes
 app.use("/api/auth", authRoutes);
-app.use("/api/public", publicRoutes);
 app.use("/api/super", superAdminRoutes);
 app.use("/api/hospital", hospitalAdminRoutes);
 app.use("/api/patient", patientRoutes);

@@ -29,12 +29,8 @@ import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Label from '../../components/ui/Label';
 import Select from '../../components/ui/Select';
-import useTenant from '../../hooks/useTenant';
-import useAuth from '../../hooks/useAuth';
 
 export default function LandingPage() {
-  const { isRoot } = useTenant();
-  const { isAuthenticated } = useAuth();
   const [activeFAQ, setActiveFAQ] = useState(null);
   const [demoForm, setDemoForm] = useState({
     hospitalName: '',
@@ -104,11 +100,6 @@ export default function LandingPage() {
         'Integration capabilities vary by plan. Enterprise plans include API access for EMR integration. Contact us to discuss your specific system requirements and integration timeline.',
     },
   ];
-
-  // Redirect non-root visitors
-    if (!isRoot) {
-    return null; // Will be handled by App.jsx routing
-  }
 
   return (
     <div className="min-h-screen bg-slate-50">

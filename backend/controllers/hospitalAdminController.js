@@ -1,8 +1,10 @@
+import mongoose from 'mongoose';
 import Hospital from '../models/Hospital.js';
 import Doctor from '../models/Doctor.js';
 import User from '../models/User.js';
 import Report from '../models/Report.js';
 import AiUsageLog from '../models/AiUsageLog.js';
+import { mergePublicSiteConfig } from '../utils/publicSiteConfig.js';
 
 const ensureHospitalContext = (req, res) => {
   if (!req.hospital) {
@@ -98,6 +100,210 @@ export const updateHospitalSettings = async (req, res, next) => {
     });
 
     return res.json({ hospital });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const PUBLIC_SITE_LIMITS = {
+  highlightStats: 4,
+  services: 8,
+  faqItems: 8,
+  doctorsHighlightDoctorIds: 4,
+};
+
+const SERVICE_ICON_OPTIONS = new Set([
+  'cardiology',
+  'surgery',
+  'emergency',
+  'pediatrics',
+  'diagnostics',
+  'radiology',
+  'orthopedics',
+  'primary-care',
+  'telemedicine',
+]);
+
+const sanitizeString = (value, maxLength = 500) => {
+  if (typeof value !== 'string') return undefined;
+  return value.trim().slice(0, maxLength);
+};
+
+const sanitizeArray = (value, limit, mapper) => {
+  if (!Array.isArray(value)) return undefined;
+  return value
+    .slice(0, limit)
+    .map(mapper)
+    .filter(Boolean);
+};
+
+const sanitizePublicSitePayload = (body = {}) => {
+  const payload = {};
+  const booleanFields = [
+    'isEnabled',
+    'showLoginButton',
+    'showPatientRegisterButton',
+    'showAiBanner',
+    'showDoctorsHighlight',
+    'showFaq',
+    'showContact',
+  ];
+  booleanFields.forEach((field) => {
+    if (body[field] !== undefined) {
+      payload[field] = Boolean(body[field]);
+    }
+  });
+
+  const shortTextFields = [
+    ['heroTitle', 160],
+    ['heroSubtitle', 320],
+    ['heroTagline', 160],
+    ['heroImageUrl', 600],
+    ['aboutHeading', 120],
+    ['servicesHeading', 120],
+    ['aiBannerTitle', 160],
+    ['doctorsHighlightHeading', 160],
+    ['faqHeading', 160],
+    ['contactHeading', 160],
+    ['contactPhone', 64],
+    ['contactEmail', 160],
+    ['contactAddress', 320],
+    ['mapEmbedUrl', 800],
+  ];
+
+  shortTextFields.forEach(([field, length]) => {
+    if (body[field] !== undefined) {
+      payload[field] = sanitizeString(body[field], length) || '';
+    }
+  });
+
+  if (body.aboutBody !== undefined) {
+    payload.aboutBody = sanitizeString(body.aboutBody, 2000) || '';
+  }
+
+  if (body.aiBannerText !== undefined) {
+    payload.aiBannerText = sanitizeString(body.aiBannerText, 1000) || '';
+  }
+
+  if (body.highlightStats !== undefined) {
+    payload.highlightStats = sanitizeArray(body.highlightStats, PUBLIC_SITE_LIMITS.highlightStats, (item) => {
+      const label = sanitizeString(item?.label, 80) || '';
+      const value = sanitizeString(item?.value, 40) || '';
+      if (!label && !value) {
+        return null;
+      }
+      return { label, value };
+    }) ?? [];
+  }
+
+  if (body.services !== undefined) {
+    payload.services =
+      sanitizeArray(body.services, PUBLIC_SITE_LIMITS.services, (item) => {
+        const title = sanitizeString(item?.title, 80) || '';
+        const description = sanitizeString(item?.description, 240) || '';
+        const iconKeyRaw = sanitizeString(item?.iconKey, 40) || '';
+        const iconKey = SERVICE_ICON_OPTIONS.has(iconKeyRaw) ? iconKeyRaw : '';
+        if (!title && !description) {
+          return null;
+        }
+        return { title, description, iconKey };
+      }) ?? [];
+  }
+
+  if (body.faqItems !== undefined) {
+    payload.faqItems =
+      sanitizeArray(body.faqItems, PUBLIC_SITE_LIMITS.faqItems, (item) => {
+        const question = sanitizeString(item?.question, 200) || '';
+        const answer = sanitizeString(item?.answer, 800) || '';
+        if (!question && !answer) {
+          return null;
+        }
+        return { question, answer };
+      }) ?? [];
+  }
+
+  if (body.doctorsHighlightDoctorIds !== undefined) {
+    if (Array.isArray(body.doctorsHighlightDoctorIds)) {
+      const seen = new Set();
+      const ids = [];
+      for (const id of body.doctorsHighlightDoctorIds) {
+        if (ids.length >= PUBLIC_SITE_LIMITS.doctorsHighlightDoctorIds) break;
+        if (typeof id !== 'string') continue;
+        const trimmed = id.trim();
+        if (!mongoose.Types.ObjectId.isValid(trimmed)) continue;
+        if (seen.has(trimmed)) continue;
+        seen.add(trimmed);
+        ids.push(trimmed);
+      }
+      payload.doctorsHighlightDoctorIds = ids;
+    } else {
+      payload.doctorsHighlightDoctorIds = [];
+    }
+  }
+
+  return payload;
+};
+
+export const getPublicSiteConfig = async (req, res, next) => {
+  try {
+    if (!ensureHospitalContext(req, res)) {
+      return;
+    }
+
+    const hospital = await Hospital.findById(req.hospital._id).select('name logo subdomain publicSite');
+
+    return res.json({
+      hospital: {
+        name: hospital?.name,
+        logo: hospital?.logo,
+        subdomain: hospital?.subdomain,
+      },
+      publicSite: mergePublicSiteConfig(hospital?.publicSite),
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const updatePublicSiteConfig = async (req, res, next) => {
+  try {
+    if (!ensureHospitalContext(req, res)) {
+      return;
+    }
+
+    const hospital = await Hospital.findById(req.hospital._id);
+    if (!hospital) {
+      return res.status(404).json({ message: 'Hospital not found' });
+    }
+
+    const sanitizedPayload = sanitizePublicSitePayload(req.body || {});
+    const currentConfig = hospital.publicSite || {};
+    const updatedConfig = { ...currentConfig, ...sanitizedPayload };
+
+    if (sanitizedPayload.highlightStats !== undefined) {
+      updatedConfig.highlightStats = sanitizedPayload.highlightStats;
+    }
+    if (sanitizedPayload.services !== undefined) {
+      updatedConfig.services = sanitizedPayload.services;
+    }
+    if (sanitizedPayload.faqItems !== undefined) {
+      updatedConfig.faqItems = sanitizedPayload.faqItems;
+    }
+    if (sanitizedPayload.doctorsHighlightDoctorIds !== undefined) {
+      updatedConfig.doctorsHighlightDoctorIds = sanitizedPayload.doctorsHighlightDoctorIds;
+    }
+
+    hospital.publicSite = updatedConfig;
+    await hospital.save();
+
+    return res.json({
+      hospital: {
+        name: hospital.name,
+        logo: hospital.logo,
+        subdomain: hospital.subdomain,
+      },
+      publicSite: mergePublicSiteConfig(hospital.publicSite),
+    });
   } catch (err) {
     return next(err);
   }
