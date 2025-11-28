@@ -67,14 +67,27 @@ export const getDefaultPublicSiteConfig = () => clone(BASE_PUBLIC_SITE);
 
 export const mergePublicSiteConfig = (raw = {}) => {
   const defaults = getDefaultPublicSiteConfig();
-  return {
+  // Convert Mongoose document to plain object if needed
+  const plainRaw = raw && typeof raw.toObject === 'function' ? raw.toObject() : raw;
+  
+  // Merge defaults with saved values, but only use defaults for truly missing fields
+  const merged = {
     ...defaults,
-    ...raw,
-    highlightStats: sanitizeStats(raw?.highlightStats),
-    services: sanitizeServices(raw?.services),
-    faqItems: sanitizeFaqItems(raw?.faqItems),
-    doctorsHighlightDoctorIds: Array.isArray(raw?.doctorsHighlightDoctorIds)
-      ? raw.doctorsHighlightDoctorIds
+    ...plainRaw,
+    // Preserve boolean values explicitly (don't let defaults overwrite false/true)
+    isEnabled: plainRaw?.isEnabled !== undefined ? Boolean(plainRaw.isEnabled) : defaults.isEnabled,
+    showLoginButton: plainRaw?.showLoginButton !== undefined ? Boolean(plainRaw.showLoginButton) : defaults.showLoginButton,
+    showPatientRegisterButton: plainRaw?.showPatientRegisterButton !== undefined ? Boolean(plainRaw.showPatientRegisterButton) : defaults.showPatientRegisterButton,
+    showAiBanner: plainRaw?.showAiBanner !== undefined ? Boolean(plainRaw.showAiBanner) : defaults.showAiBanner,
+    showDoctorsHighlight: plainRaw?.showDoctorsHighlight !== undefined ? Boolean(plainRaw.showDoctorsHighlight) : defaults.showDoctorsHighlight,
+    showFaq: plainRaw?.showFaq !== undefined ? Boolean(plainRaw.showFaq) : defaults.showFaq,
+    showContact: plainRaw?.showContact !== undefined ? Boolean(plainRaw.showContact) : defaults.showContact,
+    // Preserve arrays and sanitize them
+    highlightStats: sanitizeStats(plainRaw?.highlightStats),
+    services: sanitizeServices(plainRaw?.services),
+    faqItems: sanitizeFaqItems(plainRaw?.faqItems),
+    doctorsHighlightDoctorIds: Array.isArray(plainRaw?.doctorsHighlightDoctorIds)
+      ? plainRaw.doctorsHighlightDoctorIds
           .map((id) => {
             if (!id) return null;
             if (typeof id === 'string') return id;
@@ -82,8 +95,10 @@ export const mergePublicSiteConfig = (raw = {}) => {
             return null;
           })
           .filter(Boolean)
-      : [],
+      : defaults.doctorsHighlightDoctorIds,
   };
+  
+  return merged;
 };
 
 

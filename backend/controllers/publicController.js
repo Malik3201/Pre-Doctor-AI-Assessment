@@ -60,7 +60,13 @@ export const getHospitalPublicSite = (req, res) => {
     return res.status(404).json({ message: 'Hospital not found or inactive' });
   }
 
-  const publicSite = mergePublicSiteConfig(hospital.publicSite);
+  // Convert Mongoose subdocument to plain object if needed
+  const rawPublicSite = hospital.publicSite;
+  const plainPublicSite = rawPublicSite && typeof rawPublicSite.toObject === 'function' 
+    ? rawPublicSite.toObject() 
+    : (rawPublicSite || {});
+
+  const publicSite = mergePublicSiteConfig(plainPublicSite);
 
   return res.json({
     hospital: {

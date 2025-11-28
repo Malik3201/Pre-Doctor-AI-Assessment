@@ -244,9 +244,13 @@ export default function HospitalPublicSitePage() {
     setIsSaving(true);
     try {
       const response = await apiClient.put('/hospital/public-site', payload);
-      setHospitalInfo(response.data?.hospital || null);
-      setForm(normalizeConfig(response.data?.publicSite));
+      // Update hospital info if provided, but DON'T overwrite form state
+      // The form already has what the user entered - keep it as-is after save
+      if (response.data?.hospital) {
+        setHospitalInfo(response.data.hospital);
+      }
       showToast({ title: 'Public site updated', variant: 'success' });
+      // Don't refetch - form state is already correct and matches what was saved
     } catch (err) {
       const message = err?.response?.data?.message || 'Unable to save public site settings.';
       showToast({ title: 'Save failed', description: message, variant: 'error' });

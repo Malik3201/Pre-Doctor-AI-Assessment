@@ -252,13 +252,19 @@ export const getPublicSiteConfig = async (req, res, next) => {
 
     const hospital = await Hospital.findById(req.hospital._id).select('name logo subdomain publicSite');
 
+    // Convert Mongoose subdocument to plain object if needed
+    const rawPublicSite = hospital?.publicSite;
+    const plainPublicSite = rawPublicSite && typeof rawPublicSite.toObject === 'function' 
+      ? rawPublicSite.toObject() 
+      : (rawPublicSite || {});
+
     return res.json({
       hospital: {
         name: hospital?.name,
         logo: hospital?.logo,
         subdomain: hospital?.subdomain,
       },
-      publicSite: mergePublicSiteConfig(hospital?.publicSite),
+      publicSite: mergePublicSiteConfig(plainPublicSite),
     });
   } catch (err) {
     return next(err);
@@ -296,13 +302,20 @@ export const updatePublicSiteConfig = async (req, res, next) => {
     hospital.publicSite = updatedConfig;
     await hospital.save();
 
+    // Reload to get fresh data, then convert Mongoose subdocument to plain object
+    const savedHospital = await Hospital.findById(req.hospital._id).select('name logo subdomain publicSite');
+    const rawPublicSite = savedHospital?.publicSite;
+    const plainPublicSite = rawPublicSite && typeof rawPublicSite.toObject === 'function' 
+      ? rawPublicSite.toObject() 
+      : (rawPublicSite || {});
+
     return res.json({
       hospital: {
-        name: hospital.name,
-        logo: hospital.logo,
-        subdomain: hospital.subdomain,
+        name: savedHospital.name,
+        logo: savedHospital.logo,
+        subdomain: savedHospital.subdomain,
       },
-      publicSite: mergePublicSiteConfig(hospital.publicSite),
+      publicSite: mergePublicSiteConfig(plainPublicSite),
     });
   } catch (err) {
     return next(err);
