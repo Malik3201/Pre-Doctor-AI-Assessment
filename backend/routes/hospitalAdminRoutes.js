@@ -9,6 +9,7 @@ import {
   updateDoctor,
   deleteDoctor,
   getPatients,
+  getPatientById,
   togglePatientBanStatus,
   getHospitalAnalyticsOverview,
   getPublicSiteConfig,
@@ -32,6 +33,7 @@ router.route('/doctors').post(createDoctor).get(getDoctors);
 router.route('/doctors/:id').get(getDoctorById).put(updateDoctor).delete(deleteDoctor);
 
 router.route('/patients').get(getPatients);
+router.route('/patients/:id').get(getPatientById);
 router.route('/patients/:id/ban').patch(togglePatientBanStatus);
 
 router.route('/analytics/overview').get(getHospitalAnalyticsOverview);

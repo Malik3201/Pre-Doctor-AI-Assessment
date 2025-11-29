@@ -369,6 +369,7 @@ export default function SuperHospitalsPage() {
                   <th className="px-6 py-4 font-medium">Status</th>
                   <th className="px-6 py-4 font-medium">Plan</th>
                   <th className="px-6 py-4 font-medium">AI usage</th>
+                  <th className="px-6 py-4 font-medium">Patients</th>
                   <th className="px-6 py-4 font-medium">Created</th>
                   <th className="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
@@ -390,6 +391,14 @@ export default function SuperHospitalsPage() {
                       <div className="flex items-center gap-3">
                         <Activity className="h-4 w-4 text-slate-400" />
                         {formatUsage(hospital.aiChecksUsedThisMonth, hospital.maxAiChecksPerMonth)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="font-semibold text-slate-900">{hospital.patientCount ?? 0}</p>
+                        <p className="text-xs text-slate-500">
+                          {hospital.activePatientCount ?? 0} active / {hospital.bannedPatientCount ?? 0} banned
+                        </p>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-slate-700">

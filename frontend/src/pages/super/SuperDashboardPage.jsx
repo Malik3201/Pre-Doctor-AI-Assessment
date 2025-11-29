@@ -57,6 +57,13 @@ export default function SuperDashboardPage() {
       .slice(0, 5);
   }, [hospitals]);
 
+  const topHospitalsByPatients = useMemo(() => {
+    if (!analytics?.hospitals?.length) return [];
+    return [...analytics.hospitals]
+      .sort((a, b) => (b.patientCount || 0) - (a.patientCount || 0))
+      .slice(0, 5);
+  }, [analytics?.hospitals]);
+
   const activityBlocks = [
     {
       label: 'AI checks consumed',
@@ -174,13 +181,15 @@ export default function SuperDashboardPage() {
                     </div>
                   );
                 })}
-          </div>
+              </div>
             </Card>
+          </section>
 
+          <section className="grid gap-6 lg:grid-cols-2">
             <Card className="space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900">Top hospitals</h3>
+                  <h3 className="text-lg font-semibold text-slate-900">Top hospitals by AI usage</h3>
                   <p className="text-sm text-slate-500">Ranked by AI checks this billing period</p>
                 </div>
                 <Badge variant="neutral">{topHospitals.length || 0} tracked</Badge>
@@ -209,6 +218,46 @@ export default function SuperDashboardPage() {
                         </p>
                         <p className="text-xs text-slate-500">
                           {hospital.planName || 'Unassigned'}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+
+            <Card className="space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">Top hospitals by patient volume</h3>
+                  <p className="text-sm text-slate-500">Ranked by total registered patients</p>
+                </div>
+                <Badge variant="neutral">{topHospitalsByPatients.length || 0} tracked</Badge>
+              </div>
+              {topHospitalsByPatients.length === 0 ? (
+                <p className="text-sm text-slate-500">No patient data available yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {topHospitalsByPatients.map((hospital, index) => (
+                    <div
+                      key={hospital.id}
+                      className="flex items-center justify-between rounded-2xl border border-slate-100 px-4 py-3"
+                    >
+                      <div>
+                        <p className="text-xs font-semibold uppercase text-slate-400">
+                          #{index + 1}
+                        </p>
+                        <p className="font-semibold text-slate-900">{hospital.name}</p>
+                        <p className="text-xs text-slate-500">
+                          {hospital.subdomain}.yourdomain.com
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-slate-900">
+                          {numberFormatter.format(hospital.patientCount || 0)} patients
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {hospital.activePatientCount || 0} active / {hospital.bannedPatientCount || 0} banned
                         </p>
                       </div>
                     </div>

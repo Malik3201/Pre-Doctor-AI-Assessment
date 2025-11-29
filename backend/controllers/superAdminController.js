@@ -82,9 +82,49 @@ export const getHospitals = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .select('_id name subdomain status planName maxAiChecksPerMonth aiChecksUsedThisMonth createdAt');
 
+    // Compute patient counts per hospital
+    const patientStats = await User.aggregate([
+      { $match: { role: 'PATIENT' } },
+      {
+        $group: {
+          _id: '$hospital',
+          totalPatients: { $sum: 1 },
+          activePatients: {
+            $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] },
+          },
+          bannedPatients: {
+            $sum: { $cond: [{ $eq: ['$status', 'banned'] }, 1, 0] },
+          },
+        },
+      },
+    ]);
+
+    // Create a map for quick lookup
+    const patientCountMap = new Map(
+      patientStats.map((stat) => [
+        stat._id?.toString(),
+        {
+          patientCount: stat.totalPatients || 0,
+          activePatientCount: stat.activePatients || 0,
+          bannedPatientCount: stat.bannedPatients || 0,
+        },
+      ])
+    );
+
+    // Attach patient counts to each hospital
+    const hospitalsWithCounts = hospitals.map((hospital) => {
+      const hospitalObj = hospital.toObject();
+      const counts = patientCountMap.get(hospital._id.toString()) || {
+        patientCount: 0,
+        activePatientCount: 0,
+        bannedPatientCount: 0,
+      };
+      return { ...hospitalObj, ...counts };
+    });
+
     return res.json({
-      count: hospitals.length,
-      hospitals,
+      count: hospitalsWithCounts.length,
+      hospitals: hospitalsWithCounts,
     });
   } catch (err) {
     return next(err);
@@ -181,6 +221,52 @@ export const getGlobalStats = async (req, res, next) => {
       AiUsageLog.countDocuments(),
     ]);
 
+    // Get all hospitals with patient counts
+    const hospitals = await Hospital.find()
+      .sort({ createdAt: -1 })
+      .select('_id name subdomain');
+
+    const patientStats = await User.aggregate([
+      { $match: { role: 'PATIENT' } },
+      {
+        $group: {
+          _id: '$hospital',
+          totalPatients: { $sum: 1 },
+          activePatients: {
+            $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] },
+          },
+          bannedPatients: {
+            $sum: { $cond: [{ $eq: ['$status', 'banned'] }, 1, 0] },
+          },
+        },
+      },
+    ]);
+
+    const patientCountMap = new Map(
+      patientStats.map((stat) => [
+        stat._id?.toString(),
+        {
+          patientCount: stat.totalPatients || 0,
+          activePatientCount: stat.activePatients || 0,
+          bannedPatientCount: stat.bannedPatients || 0,
+        },
+      ])
+    );
+
+    const hospitalsWithPatients = hospitals.map((hospital) => {
+      const counts = patientCountMap.get(hospital._id.toString()) || {
+        patientCount: 0,
+        activePatientCount: 0,
+        bannedPatientCount: 0,
+      };
+      return {
+        id: hospital._id,
+        name: hospital.name,
+        subdomain: hospital.subdomain,
+        ...counts,
+      };
+    });
+
     return res.json({
       totalHospitals,
       activeHospitals,
@@ -191,6 +277,7 @@ export const getGlobalStats = async (req, res, next) => {
       totalSuperAdmins,
       totalAiChecks,
       totalRevenue: 0, // TODO: integrate billing metrics
+      hospitals: hospitalsWithPatients,
     });
   } catch (err) {
     return next(err);

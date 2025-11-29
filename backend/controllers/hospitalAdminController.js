@@ -474,28 +474,58 @@ export const getPatients = async (req, res, next) => {
       return;
     }
 
-    const filter = { role: 'PATIENT', hospital: req.hospital._id };
+    const matchStage = { role: 'PATIENT', hospital: req.hospital._id };
 
     if (req.query.status) {
-      filter.status = req.query.status;
+      matchStage.status = req.query.status;
     }
 
     if (req.query.search) {
       const regex = new RegExp(req.query.search, 'i');
-      filter.$or = [{ name: regex }, { email: regex }];
+      matchStage.$or = [{ name: regex }, { email: regex }];
     }
 
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 20;
     const skip = (page - 1) * limit;
 
-    const [total, patients] = await Promise.all([
-      User.countDocuments(filter),
-      User.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .select('-password'),
+    const total = await User.countDocuments(matchStage);
+
+    const patients = await User.aggregate([
+      { $match: matchStage },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: 'reports',
+          let: { patientId: '$_id', hospitalId: '$hospital' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$patient', '$$patientId'] },
+                    { $eq: ['$hospital', '$$hospitalId'] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'reports',
+        },
+      },
+      {
+        $addFields: {
+          reportCount: { $size: '$reports' },
+        },
+      },
+      {
+        $project: {
+          password: 0,
+          reports: 0,
+        },
+      },
     ]);
 
     return res.json({ total, page, limit, patients });
@@ -533,6 +563,95 @@ export const togglePatientBanStatus = async (req, res, next) => {
     return next(err);
   }
 };
+
+export const getPatientById = async (req, res, next) => {
+  try {
+    if (!ensureHospitalContext(req, res)) {
+      return;
+    }
+
+    const patientData = await User.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(req.params.id),
+          role: 'PATIENT',
+          hospital: req.hospital._id,
+        },
+      },
+      {
+        $lookup: {
+          from: 'reports',
+          let: { patientId: '$_id', hospitalId: '$hospital' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$patient', '$$patientId'] },
+                    { $eq: ['$hospital', '$$hospitalId'] },
+                  ],
+                },
+              },
+            },
+            { $sort: { createdAt: -1 } },
+            { $limit: 3 },
+            {
+              $project: {
+                _id: 1,
+                riskLevel: 1,
+                createdAt: 1,
+                summary: 1,
+              },
+            },
+          ],
+          as: 'recentReports',
+        },
+      },
+      {
+        $lookup: {
+          from: 'reports',
+          let: { patientId: '$_id', hospitalId: '$hospital' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$patient', '$$patientId'] },
+                    { $eq: ['$hospital', '$$hospitalId'] },
+                  ],
+                },
+              },
+            },
+            { $count: 'total' },
+          ],
+          as: 'reportCountData',
+        },
+      },
+      {
+        $addFields: {
+          reportCount: {
+            $ifNull: [{ $arrayElemAt: ['$reportCountData.total', 0] }, 0],
+          },
+        },
+      },
+      {
+        $project: {
+          password: 0,
+          reportCountData: 0,
+        },
+      },
+    ]);
+
+    if (!patientData || patientData.length === 0) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+
+    return res.json({ patient: patientData[0] });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 
 export const getHospitalAnalyticsOverview = async (req, res, next) => {
   try {
