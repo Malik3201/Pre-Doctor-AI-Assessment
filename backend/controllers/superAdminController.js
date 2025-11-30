@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import SystemSettings from '../models/SystemSettings.js';
 import AiUsageLog from '../models/AiUsageLog.js';
 import SubscriptionPlan from '../models/SubscriptionPlan.js';
+import Report from '../models/Report.js';
 
 const sanitizeHospital = (hospital) => {
   if (!hospital) return null;
@@ -204,27 +205,53 @@ export const getGlobalStats = async (req, res, next) => {
     const [
       totalHospitals,
       activeHospitals,
+      suspendedHospitals,
       bannedHospitals,
       totalUsers,
       totalPatients,
       totalHospitalAdmins,
       totalSuperAdmins,
       totalAiChecks,
+      totalReports,
     ] = await Promise.all([
       Hospital.countDocuments(),
       Hospital.countDocuments({ status: 'active' }),
+      Hospital.countDocuments({ status: 'suspended' }),
       Hospital.countDocuments({ status: 'banned' }),
       User.countDocuments(),
       User.countDocuments({ role: 'PATIENT' }),
       User.countDocuments({ role: 'HOSPITAL_ADMIN' }),
       User.countDocuments({ role: 'SUPER_ADMIN' }),
       AiUsageLog.countDocuments(),
+      Report.countDocuments(),
     ]);
 
-    // Get all hospitals with patient counts
+    // Get all hospitals with patient counts and AI usage
     const hospitals = await Hospital.find()
       .sort({ createdAt: -1 })
-      .select('_id name subdomain');
+      .select('_id name subdomain status aiChecksUsedThisMonth maxAiChecksPerMonth billingPeriodStart billingPeriodEnd');
+
+    // Calculate aggregate AI usage metrics
+    const aiUsageStats = hospitals.reduce(
+      (acc, hospital) => {
+        acc.totalUsed += hospital.aiChecksUsedThisMonth || 0;
+        acc.totalMax += hospital.maxAiChecksPerMonth || 0;
+        return acc;
+      },
+      { totalUsed: 0, totalMax: 0 }
+    );
+
+    // Get billing period from first active hospital or set current period
+    const now = new Date();
+    const activeHospital = hospitals.find((h) => h.status === 'active');
+    let billingPeriodStart = now;
+    let billingPeriodEnd = new Date(now);
+    billingPeriodEnd.setMonth(now.getMonth() + 1);
+    
+    if (activeHospital?.billingPeriodStart && activeHospital?.billingPeriodEnd) {
+      billingPeriodStart = activeHospital.billingPeriodStart;
+      billingPeriodEnd = activeHospital.billingPeriodEnd;
+    }
 
     const patientStats = await User.aggregate([
       { $match: { role: 'PATIENT' } },
@@ -267,15 +294,77 @@ export const getGlobalStats = async (req, res, next) => {
       };
     });
 
+    // Get time-based analytics (last 7 days, last 30 days)
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(now.getDate() - 7);
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setDate(now.getDate() - 30);
+
+    const [aiChecksLast7Days, aiChecksLast30Days, reportsLast7Days, reportsLast30Days] = await Promise.all([
+      AiUsageLog.countDocuments({ createdAt: { $gte: sevenDaysAgo } }),
+      AiUsageLog.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
+      Report.countDocuments({ createdAt: { $gte: sevenDaysAgo } }),
+      Report.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
+    ]);
+
+    // Get daily AI checks for last 7 days
+    const dailyAiChecks = await AiUsageLog.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sevenDaysAgo },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // Get daily reports for last 7 days
+    const dailyReports = await Report.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sevenDaysAgo },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
     return res.json({
       totalHospitals,
       activeHospitals,
+      suspendedHospitals,
       bannedHospitals,
       totalUsers,
       totalPatients,
       totalHospitalAdmins,
       totalSuperAdmins,
       totalAiChecks,
+      totalReports,
+      aiChecksUsedThisMonth: aiUsageStats.totalUsed,
+      maxAiChecksPerMonth: aiUsageStats.totalMax,
+      billingPeriodStart,
+      billingPeriodEnd,
+      // Time-based metrics
+      aiChecksLast7Days,
+      aiChecksLast30Days,
+      reportsLast7Days,
+      reportsLast30Days,
+      dailyAiChecks: dailyAiChecks.map((item) => ({ date: item._id, count: item.count })),
+      dailyReports: dailyReports.map((item) => ({ date: item._id, count: item.count })),
       totalRevenue: 0, // TODO: integrate billing metrics
       hospitals: hospitalsWithPatients,
     });

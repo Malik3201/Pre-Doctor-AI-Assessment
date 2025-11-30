@@ -3,6 +3,7 @@ import {
   Activity,
   Building2,
   CheckCircle2,
+  Eye,
   MoreHorizontal,
   Plus,
   RefreshCcw,
@@ -74,6 +75,10 @@ export default function SuperHospitalsPage() {
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [resetPassword, setResetPassword] = useState('');
   const [isResetSubmitting, setIsResetSubmitting] = useState(false);
+
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+  const [hospitalDetails, setHospitalDetails] = useState(null);
   const { showToast } = useToast();
 
   const fetchHospitals = useCallback(async (statusParam) => {
@@ -263,6 +268,25 @@ export default function SuperHospitalsPage() {
     }
   };
 
+  const handleViewHospital = async (hospitalId) => {
+    setIsDetailLoading(true);
+    setIsDetailModalOpen(true);
+    setHospitalDetails(null);
+    try {
+      const response = await apiClient.get(`/super/hospitals/${hospitalId}`);
+      setHospitalDetails(response.data?.hospital || null);
+    } catch (err) {
+      showToast({
+        title: 'Unable to load hospital details',
+        description: err?.response?.data?.message || 'Please try again.',
+        variant: 'error',
+      });
+      setIsDetailModalOpen(false);
+    } finally {
+      setIsDetailLoading(false);
+    }
+  };
+
   const CREATE_FORM_ID = 'create-hospital-form';
   const PLAN_FORM_ID = 'assign-plan-form';
   const RESET_FORM_ID = 'reset-password-form';
@@ -406,6 +430,14 @@ export default function SuperHospitalsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewHospital(hospital._id)}
+                        >
+                          <Eye className="mr-1 h-4 w-4" />
+                          View
+                        </Button>
                         <Select
                           value={hospital.status}
                           onChange={(event) => handleStatusUpdate(hospital._id, event.target.value)}
@@ -645,6 +677,205 @@ export default function SuperHospitalsPage() {
             </p>
           </div>
         </form>
+      </Modal>
+
+      {/* Hospital Detail Modal */}
+      <Modal
+        open={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        title="Hospital Details"
+        footer={
+          <Button variant="outline" onClick={() => setIsDetailModalOpen(false)}>
+            Close
+          </Button>
+        }
+      >
+        {isDetailLoading ? (
+          <div className="flex min-h-[200px] items-center justify-center">
+            <Spinner className="h-8 w-8 border-slate-300" />
+          </div>
+        ) : hospitalDetails ? (
+          <div className="space-y-6">
+            {/* Basic Info */}
+            <div className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50/60 p-5 md:grid-cols-2">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Name</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{hospitalDetails.name}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Subdomain</p>
+                <p className="mt-1 text-sm text-slate-700">{hospitalDetails.subdomain}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Status</p>
+                <div className="mt-1">
+                  <Badge variant={statusBadgeMap[hospitalDetails.status] || 'neutral'}>
+                    {hospitalDetails.status}
+                  </Badge>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Plan</p>
+                <p className="mt-1 text-sm text-slate-700">{hospitalDetails.planName || 'Unassigned'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Created</p>
+                <p className="mt-1 text-sm text-slate-700">
+                  {hospitalDetails.createdAt
+                    ? new Date(hospitalDetails.createdAt).toLocaleDateString()
+                    : 'N/A'}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Last Updated</p>
+                <p className="mt-1 text-sm text-slate-700">
+                  {hospitalDetails.updatedAt
+                    ? new Date(hospitalDetails.updatedAt).toLocaleDateString()
+                    : 'N/A'}
+                </p>
+              </div>
+            </div>
+
+            {/* AI Usage Stats */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="flex items-center gap-3">
+                <Activity className="h-6 w-6 text-slate-400" />
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                    AI Checks Usage
+                  </p>
+                  <p className="mt-1 text-2xl font-bold text-slate-900">
+                    {formatUsage(
+                      hospitalDetails.aiChecksUsedThisMonth,
+                      hospitalDetails.maxAiChecksPerMonth,
+                    )}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">This month</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Branding Info */}
+            {(hospitalDetails.logo || hospitalDetails.primaryColor || hospitalDetails.secondaryColor) && (
+              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                <h4 className="mb-3 text-sm font-semibold text-slate-900">Branding</h4>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {hospitalDetails.logo && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Logo URL</p>
+                      <p className="mt-1 break-all text-sm text-slate-700">{hospitalDetails.logo}</p>
+                    </div>
+                  )}
+                  {hospitalDetails.primaryColor && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        Primary Color
+                      </p>
+                      <div className="mt-1 flex items-center gap-2">
+                        <div
+                          className="h-6 w-6 rounded border border-slate-200"
+                          style={{ backgroundColor: hospitalDetails.primaryColor }}
+                        />
+                        <p className="text-sm text-slate-700">{hospitalDetails.primaryColor}</p>
+                      </div>
+                    </div>
+                  )}
+                  {hospitalDetails.secondaryColor && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        Secondary Color
+                      </p>
+                      <div className="mt-1 flex items-center gap-2">
+                        <div
+                          className="h-6 w-6 rounded border border-slate-200"
+                          style={{ backgroundColor: hospitalDetails.secondaryColor }}
+                        />
+                        <p className="text-sm text-slate-700">{hospitalDetails.secondaryColor}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Settings Info */}
+            {hospitalDetails.settings && (
+              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                <h4 className="mb-3 text-sm font-semibold text-slate-900">Settings</h4>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {hospitalDetails.settings.tagline && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Tagline</p>
+                      <p className="mt-1 text-sm text-slate-700">{hospitalDetails.settings.tagline}</p>
+                    </div>
+                  )}
+                  {hospitalDetails.settings.city && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">City</p>
+                      <p className="mt-1 text-sm text-slate-700">{hospitalDetails.settings.city}</p>
+                    </div>
+                  )}
+                  {hospitalDetails.settings.country && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Country</p>
+                      <p className="mt-1 text-sm text-slate-700">{hospitalDetails.settings.country}</p>
+                    </div>
+                  )}
+                  {hospitalDetails.settings.assistantName && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        Assistant Name
+                      </p>
+                      <p className="mt-1 text-sm text-slate-700">
+                        {hospitalDetails.settings.assistantName}
+                      </p>
+                    </div>
+                  )}
+                  {hospitalDetails.settings.assistantTone && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        Assistant Tone
+                      </p>
+                      <p className="mt-1 text-sm capitalize text-slate-700">
+                        {hospitalDetails.settings.assistantTone}
+                      </p>
+                    </div>
+                  )}
+                  {hospitalDetails.settings.assistantLanguage && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        Assistant Language
+                      </p>
+                      <p className="mt-1 text-sm text-slate-700">
+                        {hospitalDetails.settings.assistantLanguage}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                {hospitalDetails.settings.enabledFeatures && (
+                  <div className="mt-4">
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">
+                      Enabled Features
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {hospitalDetails.settings.enabledFeatures.dietPlan && (
+                        <Badge variant="success">Diet Plan</Badge>
+                      )}
+                      {hospitalDetails.settings.enabledFeatures.testSuggestions && (
+                        <Badge variant="success">Test Suggestions</Badge>
+                      )}
+                      {hospitalDetails.settings.enabledFeatures.doctorRecommendation && (
+                        <Badge variant="success">Doctor Recommendation</Badge>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <p className="text-center text-sm text-slate-500">No hospital data available</p>
+        )}
       </Modal>
     </SuperAdminLayout>
   );
