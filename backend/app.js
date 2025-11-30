@@ -22,9 +22,38 @@ try {
   console.error("Initial MongoDB connection failed:", err.message);
 }
 
+// CORS configuration to allow root domain and all subdomains
 const corsOptions = {
-  origin: true,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, Postman, etc.)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // Allow localhost for development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+
+    // Allow root domain and all subdomains of predoctorai.online
+    const allowedPatterns = [
+      /^https?:\/\/predoctorai\.online$/,
+      /^https?:\/\/.*\.predoctorai\.online$/,
+      /^https?:\/\/pre-doctor-ai-assessment\.vercel\.app$/,
+    ];
+
+    const isAllowed = allowedPatterns.some((pattern) => pattern.test(origin));
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: false,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-Subdomain'],
 };
 
 app.use(cors(corsOptions));
