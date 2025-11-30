@@ -40,7 +40,7 @@ export default function Modal({ open, onClose, title, children, footer, classNam
           <X className="h-4 w-4" />
         </button>
         {title && <h3 className="mb-6 text-xl font-semibold text-slate-900">{title}</h3>}
-        <div className="space-y-4">{children}</div>
+        <div className="max-h-[60vh] space-y-4 overflow-y-auto scrollbar-hide">{children}</div>
         {footer && <div className="mt-6 flex items-center justify-end gap-3">{footer}</div>}
       </div>
     </div>,

@@ -35,7 +35,7 @@ export default function SuperAdminLoginPage() {
     event.preventDefault();
     setError('');
     try {
-      const { user } = await login(form);
+      const { user } = await login(form, true); // Pass true to indicate secret login
       if (user?.role === 'SUPER_ADMIN') {
         navigate('/super/dashboard', { replace: true });
       } else {

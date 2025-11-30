@@ -40,7 +40,12 @@ export default function LoginPage() {
     event.preventDefault();
     setError('');
     try {
-      const { user } = await login(form);
+      const { user } = await login(form, false); // Pass false to indicate regular login
+      // Prevent SUPER_ADMIN from accessing super admin panel from subdomain auth
+      if (user?.role === 'SUPER_ADMIN') {
+        setError('Unauthorized Access.');
+        return;
+      }
       const destination = roleRedirects[user?.role] || '/auth/login';
       navigate(destination, { replace: true });
     } catch (err) {
