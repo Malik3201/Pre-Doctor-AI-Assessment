@@ -4,7 +4,7 @@ import useTenant from '../../hooks/useTenant';
 import Spinner from '../ui/Spinner';
 
 export default function ProtectedRoute({ children, requiredRole, requireSubdomain = false }) {
-  const { isAuthenticated, user, isLoading, isSecretLogin } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
   const { subdomain } = useTenant();
 
   if (isLoading) {
@@ -20,11 +20,6 @@ export default function ProtectedRoute({ children, requiredRole, requireSubdomai
   }
 
   if (requiredRole && user?.role !== requiredRole) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
-  // Check if SUPER_ADMIN is trying to access super admin routes without secret login
-  if (requiredRole === 'SUPER_ADMIN' && user?.role === 'SUPER_ADMIN' && !isSecretLogin()) {
     return <Navigate to="/unauthorized" replace />;
   }
 

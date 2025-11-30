@@ -13,12 +13,10 @@ export const AuthContext = createContext({
   login: async () => {},
   logout: () => {},
   updateUser: () => {},
-  isSecretLogin: () => false,
 });
 
 const STORAGE_USER_KEY = 'authUser';
 const STORAGE_TOKEN_KEY = 'accessToken';
-const STORAGE_SECRET_LOGIN_KEY = 'isSecretLogin';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -42,10 +40,6 @@ export function AuthProvider({ children }) {
     setIsInitialized(true);
   }, []);
 
-  const isSecretLogin = useCallback(() => {
-    return localStorage.getItem(STORAGE_SECRET_LOGIN_KEY) === 'true';
-  }, []);
-
   const updateUser = useCallback((updater) => {
     setUser((prevUser) => {
       const nextUser = typeof updater === 'function' ? updater(prevUser) : updater;
@@ -59,7 +53,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = useCallback(
-    async ({ email, password }, fromSecretRoute = false) => {
+    async ({ email, password }) => {
       setIsLoading(true);
       try {
         const { data } = await apiClient.post(
@@ -76,12 +70,6 @@ export function AuthProvider({ children }) {
 
         localStorage.setItem(STORAGE_TOKEN_KEY, nextToken);
         localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(nextUser));
-        // Store secret login flag only for SUPER_ADMIN
-        if (nextUser.role === 'SUPER_ADMIN') {
-          localStorage.setItem(STORAGE_SECRET_LOGIN_KEY, fromSecretRoute ? 'true' : 'false');
-        } else {
-          localStorage.removeItem(STORAGE_SECRET_LOGIN_KEY);
-        }
 
         setToken(nextToken);
         setUser(nextUser);
@@ -103,7 +91,6 @@ export function AuthProvider({ children }) {
       const message = typeof arg === 'string' ? arg : undefined;
       localStorage.removeItem(STORAGE_TOKEN_KEY);
       localStorage.removeItem(STORAGE_USER_KEY);
-      localStorage.removeItem(STORAGE_SECRET_LOGIN_KEY);
       setToken(null);
       setUser(null);
       showToast({
@@ -129,9 +116,8 @@ export function AuthProvider({ children }) {
       login,
       logout,
       updateUser,
-      isSecretLogin,
     }),
-    [user, token, isLoading, isInitialized, login, logout, updateUser, isSecretLogin],
+    [user, token, isLoading, isInitialized, login, logout, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
