@@ -120,16 +120,20 @@ export default function PatientReportDetailPage() {
       const response = await apiClient.get(`/patient/checkups/${id}/pdf`, { responseType: 'blob' });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `health-report-${id}.pdf`;
-      link.click();
-      window.URL.revokeObjectURL(url);
-      showToast({ title: 'Report downloaded successfully!', variant: 'success' });
+      
+      // Open PDF in new tab with browser's native viewer
+      window.open(url, '_blank');
+      
+      // Clean up the URL after a delay
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 100);
+      
+      showToast({ title: 'Report opened in new tab!', variant: 'success' });
     } catch (err) {
       showToast({
-        title: 'Download failed',
-        description: err?.response?.data?.message || 'Unable to download this report.',
+        title: 'Failed to open report',
+        description: err?.response?.data?.message || 'Unable to open this report.',
         variant: 'error',
       });
     }
@@ -175,8 +179,8 @@ export default function PatientReportDetailPage() {
               <div className="flex flex-col items-start gap-3 md:items-end">
                 <RiskBadge level={report.riskLevel} />
                 <Button variant="outline" size="sm" onClick={handleDownload}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Download PDF
+                  <FileText className="mr-2 h-4 w-4" />
+                  View PDF Report
                 </Button>
               </div>
             </div>

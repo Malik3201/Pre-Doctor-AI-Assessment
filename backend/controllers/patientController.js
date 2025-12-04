@@ -298,7 +298,7 @@ export const downloadHealthReportPdf = async (req, res, next) => {
     const assistantName = hospital?.settings?.assistantName || 'HealthAI';
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=health-report-${report._id}.pdf`);
+    res.setHeader('Content-Disposition', `inline; filename=health-report-${report._id}.pdf`);
 
     const pdfDoc = generateReportPdf({
       hospital,
